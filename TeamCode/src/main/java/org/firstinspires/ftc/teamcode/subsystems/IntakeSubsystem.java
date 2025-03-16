@@ -38,12 +38,12 @@ public class IntakeSubsystem extends SubsystemBase {
     private RevColorSensorV3 colourSensor;
 
     // Define variables
-    private double intakeSlidesInPosition = 0.5;
+    private double intakeSlidesInPosition = 0.49;
 
     private double intakeSlidesOutPosition = 0.1;
 
     private double intakePivotUpPosition = 0;
-    private double intakePivotDownPosition = 0.3;
+    private double intakePivotDownPosition = 0.33;
 
     private double intakePoopOpen = 0.5;
 
@@ -97,10 +97,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
         intakeLeftPivot.setDirection(Servo.Direction.REVERSE);
         intakeRightPivot.setDirection(Servo.Direction.FORWARD);
+        intakeRightSlide.setDirection(Servo.Direction.REVERSE);
 
-//        intakePivotUp();
-//        intakeSlidesIn();
-//        poopChuteClose();
+        intakePivotUp();
+        intakeSlidesIn();
+        poopChuteClose();
 
     }
 

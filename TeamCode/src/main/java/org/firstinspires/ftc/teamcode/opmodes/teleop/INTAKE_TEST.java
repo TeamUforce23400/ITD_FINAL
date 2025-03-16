@@ -207,18 +207,15 @@ public class INTAKE_TEST extends CommandOpMode {
 
 
 
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-                new TransferStowCommand(transferSubsystem)
-        );
 
 
 
         m_driveOperator.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-                new TransferFlipCommand(transferSubsystem)
+                new OpenGripplerCommand(transferSubsystem)
         );
 
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
-                new DesiredColourNeutralCommand(intakeSubsystem)
+        m_driveOperator.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+                new CloseGripplerCommand(transferSubsystem)
         );
     }
 }
