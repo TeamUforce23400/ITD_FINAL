@@ -29,13 +29,16 @@ import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
+import org.firstinspires.ftc.teamcode.commands.NoPowerSlidesCommand;
 import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.OuttakeOnCommand;
 import org.firstinspires.ftc.teamcode.commands.PoopChuteCloseCommand;
 import org.firstinspires.ftc.teamcode.commands.PoopChuteOpenCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesDownJoyCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesHighBasketCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesLowBasketCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesStowCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesUpJoyCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferStowCommand;
 import org.firstinspires.ftc.teamcode.commands.groups.IntakeCommandGroup;
@@ -53,11 +56,11 @@ public class INTAKE_TEST extends CommandOpMode {
 
     private DriveSubsystem m_drive;
     private DefaultDrive m_driveCommand;
-    private IntakeSubsystem intakeSubsystem;
-
-    private RobotStateSubsystem robotState;
-    private TransferSubsystem transferSubsystem;
-//    private SlidesSubsystem slidesSubsystem;
+//    private IntakeSubsystem intakeSubsystem;
+//
+//    private RobotStateSubsystem robotState;
+//    private TransferSubsystem transferSubsystem;
+    private SlidesSubsystem slidesSubsystem;
 //
 //    private AscentSubsystem ascentSubsystem;
 //
@@ -76,20 +79,20 @@ public class INTAKE_TEST extends CommandOpMode {
         m_driveDriver = new GamepadEx(gamepad1);
         m_driveOperator = new GamepadEx(gamepad2);
 
-        intakeSubsystem = new IntakeSubsystem(hardwareMap, telemetry);
-        robotState = new RobotStateSubsystem();
-
-        //SETUP the starting COLOUR:
-
-
-        transferSubsystem = new TransferSubsystem(hardwareMap);
+//        intakeSubsystem = new IntakeSubsystem(hardwareMap, telemetry);
+//        robotState = new RobotStateSubsystem();
 //
-//        slidesSubsystem = new SlidesSubsystem(hardwareMap);
+//        //SETUP the starting COLOUR:
+//
+//
+//        transferSubsystem = new TransferSubsystem(hardwareMap);
+        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
+
 //
 //        ascentSubsystem = new AscentSubsystem(hardwareMap);
 
 
-        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.BLUE_OR_NEUTRAL);
+//        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.BLUE_OR_NEUTRAL);
         m_driveCommand = new DefaultDrive(m_drive, () -> m_driveDriver.getLeftX(),  () -> m_driveDriver.getLeftY(), () -> m_driveDriver.getRightX() * 0.5 , ()-> driveSpeed);
 
         register(m_drive);
@@ -154,50 +157,62 @@ public class INTAKE_TEST extends CommandOpMode {
         //intaking
 
 
-        m_driveDriver.getGamepadButton(GamepadKeys.Button.B).whenActive(
-                new SequentialCommandGroup(
-//                        new OpenGripplerCommand(transferSubsystem),
-                        new InstantCommand(()-> {
-                            driveSpeed = 0.4;
-                        }),
-                        new PoopChuteOpenCommand(intakeSubsystem),
-                        new IntakePivotDownCommand(intakeSubsystem, robotState),
-                        new ColourAwareIntakeCommand(intakeSubsystem)
-                )
-        ).whenInactive(
-                //retract and stage if we have the sample
-                new SequentialCommandGroup(
-                        new IntakeOffCommand(intakeSubsystem),
-                        new InstantCommand(()-> {
-                            driveSpeed = 1;
-                        }),
-                        new ConditionalCommand(
-                                new IntakeCommandGroup(intakeSubsystem, transferSubsystem, robotState), // ready to transfer
-                                new InstantCommand(), // do nothing, might want to intake again
-                                ()-> intakeSubsystem.hasItemInIntake()
-                        )
-                )
+//        m_driveDriver.getGamepadButton(GamepadKeys.Button.B).whenActive(
+//                new SequentialCommandGroup(
+////                        new OpenGripplerCommand(transferSubsystem),
+//                        new InstantCommand(()-> {
+//                            driveSpeed = 0.4;
+//                        }),
+//                        new PoopChuteOpenCommand(intakeSubsystem),
+//                        new IntakePivotDownCommand(intakeSubsystem, robotState),
+//                        new ColourAwareIntakeCommand(intakeSubsystem)
+//                )
+//        ).whenInactive(
+//                //retract and stage if we have the sample
+//                new SequentialCommandGroup(
+//                        new IntakeOffCommand(intakeSubsystem),
+//                        new InstantCommand(()-> {
+//                            driveSpeed = 1;
+//                        }),
+//                        new ConditionalCommand(
+//                                new IntakeCommandGroup(intakeSubsystem, transferSubsystem, robotState), // ready to transfer
+//                                new InstantCommand(), // do nothing, might want to intake again
+//                                ()-> intakeSubsystem.hasItemInIntake()
+//                        )
+//                )
+//
+//        );
+//
+//        new Trigger(new BooleanSupplier() {
+//            @Override
+//            public boolean getAsBoolean() {
+//                return m_driveDriver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5;
+//            }
+//        }).whileActiveContinuous(
+//                new ConditionalCommand(
+//                        new SequentialCommandGroup(
+//                                new IntakePivotUpCommand(intakeSubsystem, robotState),
+//                                new InstantCommand(intakeSubsystem::IncrSlides),
+//                                new InstantCommand(()-> {
+//                                    driveSpeed = 0.7;
+//                                })
+//                        ),
+//                        new InstantCommand(intakeSubsystem::IncrSlides),
+//                        () -> robotState.pivotPosition == RobotStateSubsystem.PivotState.LOW
+//                )
+//        );
+//
+////        m_driveDriver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenActive(
+////                new SequentialCommandGroup(
+////                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem)
+////                )
+////        );
+//
+//
+//
+//
 
-        );
 
-        new Trigger(new BooleanSupplier() {
-            @Override
-            public boolean getAsBoolean() {
-                return m_driveDriver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5;
-            }
-        }).whileActiveContinuous(
-                new ConditionalCommand(
-                        new SequentialCommandGroup(
-                                new IntakePivotUpCommand(intakeSubsystem, robotState),
-                                new InstantCommand(intakeSubsystem::IncrSlides),
-                                new InstantCommand(()-> {
-                                    driveSpeed = 0.7;
-                                })
-                        ),
-                        new InstantCommand(intakeSubsystem::IncrSlides),
-                        () -> robotState.pivotPosition == RobotStateSubsystem.PivotState.LOW
-                )
-        );
 
 //        m_driveDriver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenActive(
 //                new SequentialCommandGroup(
@@ -205,18 +220,21 @@ public class INTAKE_TEST extends CommandOpMode {
 //                )
 //        );
 
-
-
-
-
-
         m_driveOperator.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-                new OpenGripplerCommand(transferSubsystem)
+                new SlidesHighBasketCommand(slidesSubsystem)
         );
 
         m_driveOperator.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-                new CloseGripplerCommand(transferSubsystem)
+                new SlidesStowCommand(slidesSubsystem)
         );
+
+        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+                new SlidesUpJoyCommand(slidesSubsystem)
+        ).whenInactive(new NoPowerSlidesCommand(slidesSubsystem));
+
+        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+                new SlidesDownJoyCommand(slidesSubsystem)
+        ).whenInactive(new NoPowerSlidesCommand(slidesSubsystem));
     }
 }
 

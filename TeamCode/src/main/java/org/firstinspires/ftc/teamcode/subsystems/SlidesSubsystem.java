@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -10,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
-
+@Config
 public class SlidesSubsystem extends SubsystemBase {
 
     //Define motors and servos
@@ -36,11 +38,19 @@ public class SlidesSubsystem extends SubsystemBase {
     //prob only want to make this number larger than 50
     private int STOWED_SLIDE_DIFFERENCE = 50;
 
-    private static final PIDFController slidePIDF = new PIDFController(0.01,0,0.0002, 0.00018);
+
 
     public double target;
 
     private Telemetry telemetry;
+
+    public static double kP = 0.01;
+    public static double kI = 0.0;
+    public static double kD = 0.0002;
+    public static double kF = 0.00018;
+
+    private static final PIDFController slidePIDF = new PIDFController(kP, kI, kD, kF);
+
 
 
 
@@ -48,6 +58,15 @@ public class SlidesSubsystem extends SubsystemBase {
         verticalSlideMotor1 = hMap.get(DcMotor.class, "cr");
         verticalSlideMotor2 = hMap.get(DcMotor.class, "cl");
         verticalSlideMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
+        verticalSlideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        telemetry.addData("Target Position", target);
+        telemetry.addData("Current Position Right", verticalSlideMotor1.getCurrentPosition());
+        telemetry.addData("Current Position Left", verticalSlideMotor2.getCurrentPosition());
+        telemetry.update();
+
+
+        resetVerticalSlides();
 
         this.telemetry = telemetry;
     }
@@ -58,6 +77,23 @@ public class SlidesSubsystem extends SubsystemBase {
         verticalSlideMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
     }
+
+    public void JoySlideUp(){
+        verticalSlideMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        verticalSlideMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        verticalSlideMotor1.setPower(1.0);
+        verticalSlideMotor2.setPower(1.0);
+    }
+
+    public void JoySlideDown(){
+        verticalSlideMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        verticalSlideMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        verticalSlideMotor1.setPower(-1.0);
+        verticalSlideMotor2.setPower(-1.0);
+    }
+
 
     public void stowSlides() {
         //verticalSlideMotor.setTargetPosition(stowedSlidesPosition);
@@ -184,13 +220,15 @@ public class SlidesSubsystem extends SubsystemBase {
     }
 
     public void autoUpdateSlides() {
+        slidePIDF.setPIDF(kP, kI, kD, kF);
+
         double avgPosition = (verticalSlideMotor1.getCurrentPosition() + verticalSlideMotor2.getCurrentPosition()) / 2.0;
         double power = slidePIDF.calculate(avgPosition, target);
 
         telemetry.addData("Target Position", target);
         telemetry.addData("Current Position", verticalSlideMotor1.getCurrentPosition());
         telemetry.addData("Motor Power", power);
-        telemetry.update(); // Important! Refreshes the telemetry data
+        telemetry.update();
 
         verticalSlideMotor1.setPower(power);
         verticalSlideMotor2.setPower(power);
