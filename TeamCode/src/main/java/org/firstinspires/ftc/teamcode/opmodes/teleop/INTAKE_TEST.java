@@ -220,12 +220,20 @@ public class INTAKE_TEST extends CommandOpMode {
 //                )
 //        );
 
+
+
         m_driveOperator.getGamepadButton(GamepadKeys.Button.B).whenPressed(
                 new SlidesHighBasketCommand(slidesSubsystem)
         );
 
         m_driveOperator.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-                new SlidesStowCommand(slidesSubsystem)
+
+                new SequentialCommandGroup(
+                    new SlidesStowCommand(slidesSubsystem),
+                    new InstantCommand(()->{
+                        slidesSubsystem.NoPowerSlides();
+                    })
+        )
         );
 
         m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
