@@ -236,13 +236,13 @@ public class INTAKE_TEST extends CommandOpMode {
         )
         );
 
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whileActiveContinuous(
                 new SlidesUpJoyCommand(slidesSubsystem)
-        ).whenInactive(new NoPowerSlidesCommand(slidesSubsystem));
+        );
 
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whileActiveContinuous(
                 new SlidesDownJoyCommand(slidesSubsystem)
-        ).whenInactive(new NoPowerSlidesCommand(slidesSubsystem));
+        );
     }
 }
 
