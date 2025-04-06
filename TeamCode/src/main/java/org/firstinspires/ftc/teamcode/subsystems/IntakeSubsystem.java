@@ -38,16 +38,16 @@ public class IntakeSubsystem extends SubsystemBase {
     private RevColorSensorV3 colourSensor;
 
     // Define variables
-    private double intakeSlidesInPosition = 0.5275;
+    private double intakeSlidesInPosition = 0.51;
 
-    private double intakeSlidesOutPosition = 0.1;
+    private double intakeSlidesOutPosition = 0.06;
 
     private double intakePivotUpPosition = 0;
     private double intakePivotDownPosition = 0.38;
 
-    private double intakePoopOpen = 0.5;
+    private double intakePoopOpen = 0.85;
 
-    private double intakePoopClose = 0;
+    private double intakePoopClose = 0.3;
 
     private final float[] hsvValues = new float[3];
 

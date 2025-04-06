@@ -1,61 +1,23 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
-import com.arcrobotics.ftclib.command.ConditionalCommand;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
-import com.arcrobotics.ftclib.command.RunCommand;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.commands.AscentCloseHooksCommand;
-import org.firstinspires.ftc.teamcode.commands.AscentLowRungCommand;
-import org.firstinspires.ftc.teamcode.commands.AscentOpenHooksCommand;
-import org.firstinspires.ftc.teamcode.commands.AscentStowCommand;
-import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
-import org.firstinspires.ftc.teamcode.commands.ColourAwareIntakeCommand;
-import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
-import org.firstinspires.ftc.teamcode.commands.DesiredColourBlueCommand;
-import org.firstinspires.ftc.teamcode.commands.DesiredColourNeutralCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakeOffCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakeOnCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
-import org.firstinspires.ftc.teamcode.commands.NoPowerSlidesCommand;
-import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
-import org.firstinspires.ftc.teamcode.commands.OuttakeOnCommand;
-import org.firstinspires.ftc.teamcode.commands.PoopChuteCloseCommand;
-import org.firstinspires.ftc.teamcode.commands.PoopChuteOpenCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesDownJoyCommand;
-import org.firstinspires.ftc.teamcode.commands.SlidesHighBasketCommand;
-import org.firstinspires.ftc.teamcode.commands.SlidesLowBasketCommand;
-import org.firstinspires.ftc.teamcode.commands.SlidesStowCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesHighChamberCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesSpecDrop;
 import org.firstinspires.ftc.teamcode.commands.SlidesUpJoyCommand;
-import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
-import org.firstinspires.ftc.teamcode.commands.TransferStowCommand;
-import org.firstinspires.ftc.teamcode.commands.groups.IntakeCommandGroup;
-import org.firstinspires.ftc.teamcode.subsystems.AscentSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 
-import java.util.function.BooleanSupplier;
 @TeleOp(name = "Intake Test")
 public class INTAKE_TEST extends CommandOpMode {
 
     private DriveSubsystem m_drive;
-    private DefaultDrive m_driveCommand;
+
 //    private IntakeSubsystem intakeSubsystem;
 //
 //    private RobotStateSubsystem robotState;
@@ -74,7 +36,7 @@ public class INTAKE_TEST extends CommandOpMode {
     @Override
     public void initialize() {
 //        robotState = new RobotStateSubsystem();
-        m_drive = new DriveSubsystem(hardwareMap, telemetry);
+
 
         m_driveDriver = new GamepadEx(gamepad1);
         m_driveOperator = new GamepadEx(gamepad2);
@@ -93,15 +55,14 @@ public class INTAKE_TEST extends CommandOpMode {
 
 
 //        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.BLUE_OR_NEUTRAL);
-        m_driveCommand = new DefaultDrive(m_drive, () -> m_driveDriver.getLeftX(),  () -> m_driveDriver.getLeftY(), () -> m_driveDriver.getRightX() * 0.5 , ()-> driveSpeed);
 
-        register(m_drive);
-        m_drive.setDefaultCommand(m_driveCommand);
+
+
 
         //reset the pose from the auto - only if added.
 
         if(PoseStorage.currentPose != null){
-            m_drive.setPose(PoseStorage.currentPose);
+
             //we've used it up now, clear it
             PoseStorage.currentPose = null;
         }
@@ -223,17 +184,12 @@ public class INTAKE_TEST extends CommandOpMode {
 
 
         m_driveOperator.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-                new SlidesHighBasketCommand(slidesSubsystem)
+                new SlidesHighChamberCommand(slidesSubsystem)
         );
 
         m_driveOperator.getGamepadButton(GamepadKeys.Button.X).whenPressed(
 
-                new SequentialCommandGroup(
-                    new SlidesStowCommand(slidesSubsystem),
-                    new InstantCommand(()->{
-                        slidesSubsystem.NoPowerSlides();
-                    })
-        )
+                new SlidesSpecDrop(slidesSubsystem)
         );
 
         m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whileActiveContinuous(

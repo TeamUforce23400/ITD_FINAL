@@ -21,23 +21,27 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.TankDrive;
 import org.firstinspires.ftc.teamcode.ThreeDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.TwoDeadWheelLocalizer;
+import org.firstinspires.ftc.teamcode.utils.PinpointDrive;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-@Disabled
+
+
+
 public final class TuningOpModes {
     // TODO: change this to TankDrive.class if you're using tank
     public static final Class<?> DRIVE_CLASS = MecanumDrive.class;
 
     public static final String GROUP = "quickstart";
-    public static final boolean DISABLED = true;
+    public static final boolean DISABLED = false;
 
     private TuningOpModes() {}
 

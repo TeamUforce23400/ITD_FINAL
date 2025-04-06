@@ -1,67 +1,42 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.hardware.RevIMU;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.utils.OTOSDrive;
 
 public class DriveSubsystem extends SubsystemBase {
 
-    //private MecanumDrive mecanum;
-
-    private MecanumDrive drive;
-
+    private DcMotor frontLeft, frontRight, backLeft, backRight;
     private Telemetry telemetry;
+    private static final double DEADZONE = 0.05; // Adjust as needed
 
-    public DriveSubsystem(final HardwareMap hMap, Telemetry telemetry){
-
+    public DriveSubsystem(final HardwareMap hMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
-        drive = new MecanumDrive(hMap,new Pose2d(0,0,0));
+        frontLeft = hMap.get(DcMotor.class, "fl");
+        frontRight = hMap.get(DcMotor.class, "fr");
+        backLeft = hMap.get(DcMotor.class, "bl");
+        backRight = hMap.get(DcMotor.class, "br");
 
-
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
-    public void resetHeading(){
-        drive.pose = new Pose2d(0,0,0);
-    }
+    public void drive(double leftX, double leftY, double rightX, double scale) {
+        double forward = Math.abs(leftY) > DEADZONE ? leftY * scale : 0;
+        double strafe = Math.abs(leftX) > DEADZONE ? leftX * scale : 0;
+        double rotate = Math.abs(rightX) > DEADZONE ? rightX * scale : 0;
 
-    public void drive(double leftX, double leftY, double rightX, double scale){
-        Pose2d poseEstimate = drive.pose;
-        double heading = drive.pose.heading.toDouble();
+        double flPower = forward + strafe + rotate;
+        double frPower = forward - strafe - rotate;
+        double blPower = forward - strafe + rotate;
+        double brPower = forward + strafe - rotate;
 
-        Vector2d sticks = new Vector2d(
-                leftY * scale,
-                -leftX * scale
-        );
-
-        double rotX = sticks.x * Math.cos(-heading) - sticks.y * Math.sin(-heading);
-        double rotY = sticks.x * Math.sin(-heading) + sticks.y * Math.cos(-heading);
-
-        Vector2d updatedVector = new Vector2d(rotX, rotY);
-
-        drive.setDrivePowers(new PoseVelocity2d(
-                updatedVector,
-                -rightX
-        ));
-
-
-        drive.updatePoseEstimate();
-
-
-    }
-
-    public void setPose(Pose2d currentPose){
-        drive.pose = currentPose;
+        frontLeft.setPower(flPower);
+        frontRight.setPower(frPower);
+        backLeft.setPower(blPower);
+        backRight.setPower(brPower);
     }
 }

@@ -45,17 +45,19 @@ public class IntakeCommandGroup extends SequentialCommandGroup {
                 new PoopChuteCloseCommand(intakeSubsystem),
 
                 new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem).withTimeout(500),
-                new WaitCommand(100), //wait for the transfer to stablize
+                new WaitCommand(50), //wait for the transfer to stablize
                 new SlowIntakeCommand(intakeSubsystem),
 
-                new WaitCommand(300),
+                new WaitCommand(150),
                 new IntakeOffCommand(intakeSubsystem),
                 new ConditionalCommand(
                         new WaitCommand(1), //do nothing, we have no sample
                         new SequentialCommandGroup(
                                 new CloseGripplerCommand(transferSubsystem),
-                                new WaitCommand(180),
+                                new WaitCommand(90),
                                 new IntakePivotDownCommand(intakeSubsystem, robotState)),
+
+
                         () -> {return intakeSubsystem.getCurrentIntakeColour() == IntakeSubsystem.SampleColour.NONE;}
                 )
 

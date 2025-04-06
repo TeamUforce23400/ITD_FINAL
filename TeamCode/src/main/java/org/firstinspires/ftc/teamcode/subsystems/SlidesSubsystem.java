@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -26,15 +24,7 @@ public class SlidesSubsystem extends SubsystemBase {
 //    private static double p = 0, i = 0, d = 0;
 //    private static double f = 0;
 
-    private PIDController controller;
-
-    public static double p = 0.01, i = 0, d = 0;
-    public static double f = 0;
-
-    public double target;
-
-    private final double ticks_in_degrees = 700/180.0;
-
+//    private final double ticks_in_degrees = 700 / 180.0;
     private DcMotorEx verticalSlideMotor1;
     private DcMotorEx verticalSlideMotor2;
 
@@ -42,9 +32,15 @@ public class SlidesSubsystem extends SubsystemBase {
     private int stowedSlidesPosition = 0;
     private int backwardsTransferPosition = 0;
     private int lowChamberPosition = 150;
-    private int highChamberPosition = 500;
+    private int highChamberPosition = 950;
+    private int specimendropPos = 190;
     private int lowBasketPosition = 800;
-    private int highBasketPosition = 2150;
+    private int highBasketPosition = 2700;
+
+    private int level3 = 2300;
+    private int hangpos = 1100;
+
+    private int littleHang = 650;
 
     private int dumpPosition = 800;
 
@@ -59,16 +55,16 @@ public class SlidesSubsystem extends SubsystemBase {
 
 
 
-
+    public double target;
 
     private Telemetry telemetry;
 
-//    public static double kP = 0.01;
-//    public static double kI = 0.0;
-//    public static double kD = 0.0002;
-//    public static double kF = 0.00018;
-//
-//    private static final PIDFController slidePIDF = new PIDFController(kP, kI, kD, kF);
+    public static double kP = 0.01;
+    public static double kI = 0.0;
+    public static double kD = 0.0002;
+    public static double kF = 0.00018;
+
+    private static final PIDFController slidePIDF = new PIDFController(kP, kI, kD, kF);
 
 
 
@@ -79,8 +75,6 @@ public class SlidesSubsystem extends SubsystemBase {
         verticalSlideMotor1.setDirection(DcMotorEx.Direction.FORWARD);
         verticalSlideMotor2.setDirection(DcMotorEx.Direction.REVERSE);
 
-        controller = new PIDController(p, i, d);
-
 //        controller = new PIDController(p, i, d);
 
         telemetry.addData("Target Position", target);
@@ -89,7 +83,6 @@ public class SlidesSubsystem extends SubsystemBase {
         telemetry.update();
 
 
-        resetVerticalSlides();
 
         this.telemetry = telemetry;
     }
@@ -194,6 +187,18 @@ public class SlidesSubsystem extends SubsystemBase {
         setSlideTarget(highChamberPosition);
     }
 
+    public void Level3() {
+//        verticalSlideMotor1.setTargetPosition(highChamberPosition);
+//        verticalSlideMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        verticalSlideMotor1.setPower(1);
+//
+//        verticalSlideMotor2.setTargetPosition(highChamberPosition);
+//        verticalSlideMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        verticalSlideMotor2.setPower(1);
+
+        setSlideTarget(level3);
+    }
+
     public boolean IsAtHighChamber() {
         return verticalSlideMotor1.getCurrentPosition() > (highChamberPosition - 50);
     }
@@ -205,6 +210,21 @@ public class SlidesSubsystem extends SubsystemBase {
         setSlideTarget(lowBasketPosition);
     }
 
+    public void hangPos() {
+        /*verticalSlideMotor.setTargetPosition(lowBasketPosition);
+        verticalSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalSlideMotor.setPower(1);*/
+        setSlideTarget(hangpos);
+    }
+
+    public void hangLittle() {
+        /*verticalSlideMotor.setTargetPosition(lowBasketPosition);
+        verticalSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        verticalSlideMotor.setPower(1);*/
+        setSlideTarget(littleHang);
+    }
+
+
     public void dumpPosition(){
         setSlideTarget(dumpPosition);
     }
@@ -214,7 +234,11 @@ public class SlidesSubsystem extends SubsystemBase {
     }
 
     public void halfDump(){
-        setSlideTarget(dumpHalfPos);
+        setSlideTarget(specimendropPos);
+    }
+
+    public void specimenDrop(){
+        setSlideTarget(specimendropPos);
     }
 
     public boolean IsAtHalfDumpPosition(){
@@ -230,25 +254,7 @@ public class SlidesSubsystem extends SubsystemBase {
         verticalSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         verticalSlideMotor.setPower(1);
         */
-//        setSlideTarget(highBasketPosition);
-
-        controller.setPID(p, i, d);
-
-        int rightPos = verticalSlideMotor1.getCurrentPosition();
-
-        double pid = controller.calculate(rightPos, highBasketPosition);
-        double ff = Math.cos(Math.toRadians(highBasketPosition/ticks_in_degrees))*f;
-
-        double power = pid + ff;
-
-        telemetry.addData("Target Position", highBasketPosition);
-        telemetry.addData("Current Position right", rightPos);
-        telemetry.addData("Current Position left", verticalSlideMotor2.getCurrentPosition());
-        telemetry.addData("Motor Power", power);
-        telemetry.update();
-
-        verticalSlideMotor1.setPower(power);
-        verticalSlideMotor2.setPower(power);
+        setSlideTarget(highBasketPosition);
     }
 
     public boolean IsAtHighBasket() {
@@ -257,22 +263,26 @@ public class SlidesSubsystem extends SubsystemBase {
 
     public void setSlideTarget(double target) {
         this.target = Math.max(Math.min(target, highBasketPosition), 0);
-        controller.setSetPoint(target);
+        slidePIDF.setSetPoint(target);
     }
 
     public void autoUpdateSlides() {
+        slidePIDF.setPIDF(kP, kI, kD, kF);
 
-        controller.setPID(p, i, d);
+        double avgPosition = (verticalSlideMotor1.getCurrentPosition() + verticalSlideMotor2.getCurrentPosition()) / 2.0;
+        double power = slidePIDF.calculate(avgPosition, target);
 
-        int rightPos = verticalSlideMotor1.getCurrentPosition();
-
-        double pid = controller.calculate(rightPos, target);
-        double ff = Math.cos(Math.toRadians(target/ticks_in_degrees))*f;
-
-        double power = pid + ff;
-
+//        controller.setPID(p, i, d);
+//
+//        int rightPos = verticalSlideMotor1.getCurrentPosition();
+//
+//        double pid = controller.calculate(rightPos, target);
+//        double ff = Math.cos(Math.toRadians(target/ticks_in_degrees))*f;
+//
+//        double power = pid + ff;
+//
         telemetry.addData("Target Position", target);
-        telemetry.addData("Current Position right", rightPos);
+        telemetry.addData("Current Position right", verticalSlideMotor1.getCurrentPosition());
         telemetry.addData("Current Position left", verticalSlideMotor2.getCurrentPosition());
         telemetry.addData("Motor Power", power);
         telemetry.update();

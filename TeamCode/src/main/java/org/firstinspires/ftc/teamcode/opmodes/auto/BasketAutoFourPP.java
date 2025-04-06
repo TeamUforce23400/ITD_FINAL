@@ -2,9 +2,12 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import androidx.collection.ArraySet;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.CompositeVelConstraint;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -14,6 +17,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.commands.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.AscentOpenHooksCommand;
 import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
@@ -21,6 +25,7 @@ import org.firstinspires.ftc.teamcode.commands.ColourAwareIntakeCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
 import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
+import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
 import org.firstinspires.ftc.teamcode.commands.groups.AutoIntakeCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.groups.DeliveryCommandGroup;
 import org.firstinspires.ftc.teamcode.commands.groups.DeliveryResetCommandGroup;
@@ -59,6 +64,9 @@ public class BasketAutoFourPP extends CommandOpMode {
     TrajectoryActionBuilder deliverThirdSample;
 
     TrajectoryActionBuilder deliverThirdSampleMoveIn;
+    TrajectoryActionBuilder pick4thMoveIn;
+    TrajectoryActionBuilder pick4thSlowMoveIn;
+    TrajectoryActionBuilder dropOff4th;
     TrajectoryActionBuilder park;
 
 
@@ -71,7 +79,7 @@ public class BasketAutoFourPP extends CommandOpMode {
 
     SlidesSubsystem slidesSubsystem;
 
-    AscentSubsystem ascentSubsystem;
+
 
     //Change these offsets, they can be negative values
     int X_OFFSET = 0; // a larger negative number takes it closer to the basket
@@ -84,51 +92,56 @@ public class BasketAutoFourPP extends CommandOpMode {
         transferSubsystem = new TransferSubsystem(hardwareMap);
         robotState = new RobotStateSubsystem();
         slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
-        ascentSubsystem = new AscentSubsystem(hardwareMap);
+
 
 
         // instantiate your MecanumDrive at a particular pose.
-        PinpointDrive drive = new PinpointDrive(hardwareMap,
-                new Pose2d(-48, -64, Math.toRadians(0)));
+        MecanumDrive drive = new MecanumDrive(hardwareMap,
+                new Pose2d(-48, -62, Math.toRadians(0)));
 
         //pose to the submersible wall
-        Pose2d dropOffPose = new Pose2d(-55, -64, Math.toRadians(0));
+        Pose2d dropOffPose = new Pose2d(-60.5, -62.5, Math.toRadians(0));
 
         dropOffPreload = drive.actionBuilder(drive.pose)
                 .setTangent(Math.toRadians(0))
-                .splineToLinearHeading(dropOffPose, Math.toRadians(0))
+//                .strafeTo(new Vector2d(-48, -58))
+                .splineToLinearHeading(dropOffPose, Math.toRadians(0), new TranslationalVelConstraint(10))
                 .endTrajectory();
 
 
 
-        Pose2d firstSamplePose = new Pose2d(-50, -64, Math.toRadians(100));
 
 
-        firstSample = dropOffPreload.fresh()
-                .splineToLinearHeading(firstSamplePose, Math.toRadians(80))
+
+
+        Pose2d firstSamplePose = new Pose2d(-53.8, -58.5, Math.toRadians(90));
+
+
+        firstSample = drive.actionBuilder(drive.pose)
+                .splineToLinearHeading(firstSamplePose, Math.toRadians(90), new TranslationalVelConstraint(11))
                 .endTrajectory();
 
-        Pose2d firstSampleSlowMoveInPose = new Pose2d(-50, -54, Math.toRadians(100));
+        Pose2d firstSampleSlowMoveInPose = new Pose2d(-53.8, -43.9, Math.toRadians(90));
 
         firstSampleSlowMoveIn = firstSample.fresh()
-                .splineToLinearHeading(firstSampleSlowMoveInPose, Math.toRadians(90), new TranslationalVelConstraint(5))
+                .splineToLinearHeading(firstSampleSlowMoveInPose, Math.toRadians(100), new TranslationalVelConstraint(7))
                 .endTrajectory();
 
 
-        Pose2d firstSampleDeliverPose = new Pose2d(-55 + X_OFFSET,-54 + Y_OFFSET,Math.toRadians(-315));
+        Pose2d firstSampleDeliverPose = new Pose2d(-61 + X_OFFSET,-53.3 + Y_OFFSET,Math.toRadians(-315));
 
 
         firstSampleDeliver = firstSampleSlowMoveIn.fresh()
                 .splineToLinearHeading(firstSampleDeliverPose, Math.toRadians(90))
                 .endTrajectory();
 
-        Pose2d deliverFirstSampleMoveInPose = new Pose2d(-60 + X_OFFSET,-56 + Y_OFFSET, Math.toRadians(-315));
+        Pose2d deliverFirstSampleMoveInPose = new Pose2d(-63 + X_OFFSET,-56 + Y_OFFSET, Math.toRadians(-315));
 
         firstSampleDeliverIn = firstSampleDeliver.fresh()
-                .splineToLinearHeading(deliverFirstSampleMoveInPose, Math.toRadians(-90))
+                .splineToLinearHeading(deliverFirstSampleMoveInPose, Math.toRadians(90))
                 .endTrajectory();
 
-        Pose2d secondSamplePose = new Pose2d(-60 + X_OFFSET,-65 + Y_OFFSET,Math.toRadians(100));
+        Pose2d secondSamplePose = new Pose2d(-66.2 + X_OFFSET,-59.5 + Y_OFFSET,Math.toRadians(90));
 
 
         secondSample = firstSampleDeliverIn.fresh()
@@ -136,38 +149,38 @@ public class BasketAutoFourPP extends CommandOpMode {
                 .splineToLinearHeading(secondSamplePose,Math.toRadians(90))
                 .endTrajectory();
 
-        Pose2d secondSampleMoveInPose = new Pose2d(-60 + X_OFFSET,-52 + Y_OFFSET,Math.toRadians(100));
+        Pose2d secondSampleMoveInPose = new Pose2d(-66.7 + X_OFFSET,-43.5 + Y_OFFSET,Math.toRadians(90));
 
 
         secondSampleSlowMoveIn = secondSample.fresh()
-                .splineToLinearHeading(secondSampleMoveInPose, Math.toRadians(90), new TranslationalVelConstraint(5))
+                .splineToLinearHeading(secondSampleMoveInPose, Math.toRadians(90), new TranslationalVelConstraint(8))
                 .endTrajectory();
 
-        Pose2d deliverSecondSamplePose = new Pose2d(-56 + X_OFFSET,-55 + Y_OFFSET,Math.toRadians(-315));
+        Pose2d deliverSecondSamplePose = new Pose2d(-60 + X_OFFSET,-55 + Y_OFFSET,Math.toRadians(-315));
 
         deliverSecondSample = secondSampleSlowMoveIn.fresh()
-                .setTangent(Math.toRadians(-90))
-                .splineToLinearHeading(deliverSecondSamplePose,Math.toRadians(-90))
+                .setTangent(Math.toRadians(90))
+                .splineToLinearHeading(deliverSecondSamplePose,Math.toRadians(90), new TranslationalVelConstraint(11))
                 .endTrajectory();
 
-        Pose2d deliverSecondSampleMoveInPose = new Pose2d(-62 + X_OFFSET,-58 + Y_OFFSET, Math.toRadians(-315));
+        Pose2d deliverSecondSampleMoveInPose = new Pose2d(-64 + X_OFFSET,-55 + Y_OFFSET, Math.toRadians(-315));
 
 
         deliverSecondSampleMoveIn = deliverSecondSample.fresh()
-                .splineToLinearHeading(deliverSecondSampleMoveInPose, Math.toRadians(-90))
+                .splineToLinearHeading(deliverSecondSampleMoveInPose, Math.toRadians(90))
                 .endTrajectory();
 
-        Pose2d thirdSamplePose = new Pose2d(-60 + X_OFFSET,-65 + Y_OFFSET,Math.toRadians(-242));
+        Pose2d thirdSamplePose = new Pose2d(-58 + X_OFFSET,-50 + Y_OFFSET,Math.toRadians(-235));
 
         thirdSample = deliverSecondSampleMoveIn.fresh()
-                .setTangent(Math.toRadians(103))
-                .splineToLinearHeading(thirdSamplePose,Math.toRadians(103))
+                .setTangent(Math.toRadians(140))
+                .splineToLinearHeading(thirdSamplePose,Math.toRadians(140), new TranslationalVelConstraint(9))
                 .endTrajectory();
 
-        Pose2d thirdSampleMoveInPose = new Pose2d(-62 + X_OFFSET,-50 + Y_OFFSET,Math.toRadians(-242));
+        Pose2d thirdSampleMoveInPose = new Pose2d(-62.6  + X_OFFSET,-43.0 + Y_OFFSET,Math.toRadians(-235));
 
         thirdSampleSlowMoveIn = thirdSample.fresh()
-                .splineToLinearHeading(thirdSampleMoveInPose, Math.toRadians(90), new TranslationalVelConstraint(6))
+                .splineToLinearHeading(thirdSampleMoveInPose, Math.toRadians(90), new TranslationalVelConstraint(8))
                 .endTrajectory();
 
         Pose2d deliverThirdMovePose = new Pose2d(-60 + X_OFFSET,-53 + Y_OFFSET,Math.toRadians(-315));
@@ -177,16 +190,39 @@ public class BasketAutoFourPP extends CommandOpMode {
                 .splineToLinearHeading(deliverThirdMovePose , Math.toRadians(-315))
                 .endTrajectory();
 
-        Pose2d deliverThirdSampleMoveInPose = new Pose2d(-60 + X_OFFSET,-58 + Y_OFFSET, Math.toRadians(-315));
+        Pose2d deliverThirdSampleMoveInPose = new Pose2d(-61.5 + X_OFFSET,-57.5 + Y_OFFSET, Math.toRadians(-315));
 
         deliverThirdSampleMoveIn = deliverThirdSample.fresh()
                 .splineToLinearHeading(deliverThirdSampleMoveInPose, Math.toRadians(-90))
                 .endTrajectory();
 
+        Pose2d pick4thPose = new Pose2d (7, -62, Math.toRadians(0));
+
+        pick4thMoveIn = dropOffPreload.fresh()
+
+                .setTangent(Math.toRadians(0))
+                .splineToLinearHeading(pick4thPose, Math.toRadians(0))
+                .endTrajectory();
+
+        Pose2d pick4thSlowPose = new Pose2d(21.9, -62, Math.toRadians(0));
+
+        pick4thSlowMoveIn = pick4thMoveIn.fresh()
+//                .setTangent(Math.toRadians(0))
+                .splineToLinearHeading(pick4thSlowPose, Math.toRadians(0), new TranslationalVelConstraint(8))
+                .endTrajectory();
+
+        Pose2d dropOff4thPose = new Pose2d(-53.2, -62.5, Math.toRadians(15));
+
+        dropOff4th =drive.actionBuilder(drive.pose)
+                .setTangent(Math.toRadians(0))
+//                .strafeTo(new Vector2d(-48, -58))
+                .splineToLinearHeading(dropOff4thPose, Math.toRadians(0), new TranslationalVelConstraint(7))
+                .endTrajectory();
+
         park = deliverThirdSampleMoveIn.fresh()
                 .setTangent(Math.toRadians(90))
                // .splineToLinearHeading(new Pose2d(-10,-10,Math.toRadians(180)),Math.toRadians(0))
-                .splineToLinearHeading(new Pose2d(-13, -10, Math.toRadians(180)), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(-19, -3, Math.toRadians(180)), Math.toRadians(0), new TranslationalVelConstraint(85))
                 .endTrajectory();
 
         intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
@@ -196,6 +232,7 @@ public class BasketAutoFourPP extends CommandOpMode {
 
         CommandScheduler.getInstance().schedule(
                 new WaitUntilCommand(this::isStarted).andThen(
+//                        new ActionCommand(dropOffPreload.build(), new ArraySet<>())
                     new SequentialCommandGroup(
 
                             new SequentialCommandGroup(
@@ -206,13 +243,13 @@ public class BasketAutoFourPP extends CommandOpMode {
 
                                                             new DeliveryCommandGroup(intakeSubsystem, transferSubsystem, slidesSubsystem, robotState ),
                                                           new SequentialCommandGroup(
-                                                                  new WaitCommand(700), //give the slides time to move up
+                                                                  new WaitCommand(300), //give the slides time to move up
                                                                   new ActionCommand(dropOffPreload.build(), new ArraySet<>())
                                                           )
                                                     ),
-                                                    //new WaitCommand(200),
+
                                                     new OpenGripplerCommand(transferSubsystem),
-                                                    new WaitCommand(250)
+                                                    new WaitCommand(200)
 
                                             )
 
@@ -220,7 +257,54 @@ public class BasketAutoFourPP extends CommandOpMode {
 
                             new ParallelCommandGroup(
 
+                                    new ActionCommand(pick4thMoveIn.build(), new ArraySet<>()),
+                                    new DeliveryResetCommandGroup(intakeSubsystem,transferSubsystem,slidesSubsystem, robotState),
+                                    new SequentialCommandGroup(
+                                            new InstantCommand(intakeSubsystem::intakeSlidesOut), // new IntakeSlidesOutCommand(intakeSubsystem),
+                                            new InstantCommand(intakeSubsystem::intakePivotDown)// new IntakePivotDownCommand(intakeSubsystem, robotState)
+                                    )
+                            ),
+
+                            new SequentialCommandGroup(
+
+                                    new ParallelCommandGroup(
+
+                                            new SequentialCommandGroup(
+                                                    new ColourAwareIntakeCommand(intakeSubsystem).withTimeout(150)
+                                            ),
+                                            new ActionCommand(pick4thSlowMoveIn.build(), new ArraySet<>())
+
+                                    )
+
+
+
+                            ),
+
+                            new IntakeCommandGroup(intakeSubsystem, transferSubsystem, robotState),
+//
+                            new SequentialCommandGroup(
+                                    new CloseGripplerCommand(transferSubsystem),
+                                    new IntakeSlidesOutCommand(intakeSubsystem),
+
+                                    // do the drop off if we have the sample
+                                    new SequentialCommandGroup(
+                                            new ParallelCommandGroup(
+                                                    new ActionCommand(dropOff4th.build(), new ArraySet<>()),
+                                                    new WaitCommand(1500),
+                                                    new DeliveryCommandGroup(intakeSubsystem, transferSubsystem, slidesSubsystem, robotState )
+                                            ),
+
+                                            new OpenGripplerCommand(transferSubsystem),
+                                            new WaitCommand(250)
+                                    )
+
+                            ),
+
+
+                            new ParallelCommandGroup(
+
                                     new ActionCommand(firstSample.build(), new ArraySet<>()),
+                                    new WaitCommand(300),
                                     new DeliveryResetCommandGroup(intakeSubsystem,transferSubsystem,slidesSubsystem, robotState),
                                     new SequentialCommandGroup(
                                           new InstantCommand(intakeSubsystem::intakeSlidesOut), // new IntakeSlidesOutCommand(intakeSubsystem),
@@ -232,26 +316,26 @@ public class BasketAutoFourPP extends CommandOpMode {
                                     new ParallelCommandGroup(
                                             new SequentialCommandGroup(
                                                     new WaitCommand(300),
-                                                    new ColourAwareIntakeCommand(intakeSubsystem).withTimeout(2000)
+                                                    new ColourAwareIntakeCommand(intakeSubsystem).withTimeout(150)
                                             ),
                                             new ActionCommand(firstSampleSlowMoveIn.build(), new ArraySet<>())
                                     )
 
                             ),
                             new IntakeCommandGroup(intakeSubsystem, transferSubsystem, robotState),
-
+//
                             new SequentialCommandGroup(
                                     new CloseGripplerCommand(transferSubsystem),
+                                    new IntakeSlidesOutCommand(intakeSubsystem),
 
                                     // do the drop off if we have the sample
                                     new SequentialCommandGroup(
                                             new ParallelCommandGroup(
-                                                    new ActionCommand(firstSampleDeliver.build(), new ArraySet<>()),
                                                     new DeliveryCommandGroup(intakeSubsystem, transferSubsystem, slidesSubsystem, robotState )
                                             ),
                                             new ActionCommand(firstSampleDeliverIn.build(), new ArraySet<>()),
                                             new OpenGripplerCommand(transferSubsystem),
-                                            new WaitCommand(250)
+                                            new WaitCommand(150)
                                     )
 
                             ),
@@ -268,7 +352,7 @@ public class BasketAutoFourPP extends CommandOpMode {
 
                                     new ParallelCommandGroup(
                                         new SequentialCommandGroup(
-                                            new ColourAwareIntakeCommand(intakeSubsystem).withTimeout(2000)
+                                            new ColourAwareIntakeCommand(intakeSubsystem).withTimeout(150)
                                         ),
                                         new ActionCommand(secondSampleSlowMoveIn.build(), new ArraySet<>())
                                     )
@@ -282,22 +366,23 @@ public class BasketAutoFourPP extends CommandOpMode {
 
                             new SequentialCommandGroup(
                                     new CloseGripplerCommand(transferSubsystem),
+                                    new IntakeSlidesOutCommand(intakeSubsystem),
 
                                     // do the drop off if we have the sample
                                     new SequentialCommandGroup(
                                             new ParallelCommandGroup(
-                                                    new ActionCommand(deliverSecondSample.build(), new ArraySet<>()),
+
                                                     new DeliveryCommandGroup(intakeSubsystem, transferSubsystem, slidesSubsystem, robotState )
                                             ),
                                             new ActionCommand(deliverSecondSampleMoveIn.build(), new ArraySet<>()),
                                             new OpenGripplerCommand(transferSubsystem),
                                             new WaitCommand(250)
-                                    )
-
-
-                            ),
-
-
+                                    ),
+//
+//
+//                            ),
+//
+//
                             new ParallelCommandGroup(
 
                                     new ActionCommand(thirdSample.build(), new ArraySet<>()),
@@ -310,7 +395,7 @@ public class BasketAutoFourPP extends CommandOpMode {
                                     new SequentialCommandGroup(
                                             new IntakeSlidesOutCommand(intakeSubsystem),
                                             new IntakePivotDownCommand(intakeSubsystem, robotState),
-                                            new ColourAwareIntakeCommand(intakeSubsystem).withTimeout(2000)
+                                            new ColourAwareIntakeCommand(intakeSubsystem).withTimeout(400)
                                     ),
 
                                     new ActionCommand(thirdSampleSlowMoveIn.build(), new ArraySet<>())
@@ -320,7 +405,7 @@ public class BasketAutoFourPP extends CommandOpMode {
 
                             new SequentialCommandGroup(
                                     new ParallelCommandGroup(
-                                            new ActionCommand(deliverThirdSample.build(), new ArraySet<>()),
+
                                             new DeliveryCommandGroup(intakeSubsystem, transferSubsystem, slidesSubsystem, robotState )
                                     ),
                                     new ActionCommand(deliverThirdSampleMoveIn.build(), new ArraySet<>()),
@@ -331,20 +416,26 @@ public class BasketAutoFourPP extends CommandOpMode {
 
                             new ParallelCommandGroup(
                                     new ActionCommand(park.build(), new ArraySet<>()),
-                                    new DeliveryResetCommandGroup(intakeSubsystem,transferSubsystem,slidesSubsystem, robotState),
-                                    new AscentOpenHooksCommand(ascentSubsystem)
-                            ),
+                                    new InstantCommand(()->{
+                                        new TransferFlipCommand(transferSubsystem);
 
-                            new InstantCommand(()->{
+                                    })
+//                                    new DeliveryResetCommandGroup(intakeSubsystem,transferSubsystem,slidesSubsystem, robotState)
 
-                                PoseStorage.currentPose = new Pose2d(0, 0, Math.toRadians(90));
+//                                    new AscentOpenHooksCommand(ascentSubsystem)
 
-                            })
+                            )
 
 
 
-                    )
+
+
                 )
+
+                )
+                )
+
+
         );
 
     }

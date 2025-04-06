@@ -1,24 +1,16 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
-import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
-import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.commands.AscentCloseHooksCommand;
-import org.firstinspires.ftc.teamcode.commands.AscentLowRungCommand;
-import org.firstinspires.ftc.teamcode.commands.AscentOpenHooksCommand;
-import org.firstinspires.ftc.teamcode.commands.AscentStowCommand;
 import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.ColourAwareIntakeCommand;
 import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
@@ -28,16 +20,18 @@ import org.firstinspires.ftc.teamcode.commands.IntakeOffCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
+import org.firstinspires.ftc.teamcode.commands.LittleHangCommand;
 import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.OuttakeOnCommand;
 import org.firstinspires.ftc.teamcode.commands.PoopChuteOpenCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesHang;
 import org.firstinspires.ftc.teamcode.commands.SlidesHighBasketCommand;
-import org.firstinspires.ftc.teamcode.commands.SlidesLowBasketCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesHighChamberCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesSpecDrop;
 import org.firstinspires.ftc.teamcode.commands.SlidesStowCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferStowCommand;
 import org.firstinspires.ftc.teamcode.commands.groups.IntakeCommandGroup;
-import org.firstinspires.ftc.teamcode.subsystems.AscentSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
@@ -46,8 +40,6 @@ import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 import org.firstinspires.ftc.teamcode.utils.PoseStorage;
 
 import java.util.function.BooleanSupplier;
-@Disabled
-
 @TeleOp(name = "Blue TeleOp")
 public class BlueTeleOp extends CommandOpMode {
 
@@ -57,7 +49,7 @@ public class BlueTeleOp extends CommandOpMode {
     private TransferSubsystem transferSubsystem;
     private SlidesSubsystem slidesSubsystem;
 
-    private AscentSubsystem ascentSubsystem;
+//    private AscentSubsystem ascentSubsystem;
 
     private RobotStateSubsystem robotState;
     private GamepadEx m_driveDriver;
@@ -82,7 +74,7 @@ public class BlueTeleOp extends CommandOpMode {
 
         slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
 
-        ascentSubsystem = new AscentSubsystem(hardwareMap);
+//        ascentSubsystem = new AscentSubsystem(hardwareMap);
 
 
 
@@ -93,11 +85,11 @@ public class BlueTeleOp extends CommandOpMode {
 
         //reset the pose from the auto - only if added.
 
-        if(PoseStorage.currentPose != null){
-            m_drive.setPose(PoseStorage.currentPose);
-            //we've used it up now, clear it
-           PoseStorage.currentPose = null;
-        }
+//        if(PoseStorage.currentPose != null){
+//            m_drive.setPose(PoseStorage.currentPose);
+//            //we've used it up now, clear it
+//            PoseStorage.currentPose = null;
+//        }
 
         //get rid of this when not needed
         /*schedule(new RunCommand(() -> {
@@ -142,7 +134,7 @@ public class BlueTeleOp extends CommandOpMode {
                         new InstantCommand(()-> {
                             driveSpeed = 1;
                         })
-                    )
+                )
 
         );
 
@@ -168,18 +160,23 @@ public class BlueTeleOp extends CommandOpMode {
 
         //High chamber specimen
         m_driveDriver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
-                new ParallelCommandGroup(
-
-                        new TransferFlipCommand(transferSubsystem),
+                new SequentialCommandGroup(
+                        new ParallelCommandGroup(
+                                new TransferFlipCommand(transferSubsystem),
+                                new SlidesHighChamberCommand(slidesSubsystem)
+                        )
+                        ,
                         new InstantCommand(()-> {
-                            driveSpeed = 1;
+                            driveSpeed = 0.7;
                         })
                 )).whenInactive(
-                    new SequentialCommandGroup(
-                            new ConditionalCommand(
-                                    //Slam down
-                                    new SequentialCommandGroup(
+                new SequentialCommandGroup(
+                        new ConditionalCommand(
+                                //Slam down
+                                new SequentialCommandGroup(
+                                        new SlidesSpecDrop(slidesSubsystem),
                                         new OpenGripplerCommand(transferSubsystem),
+                                        new SlidesStowCommand(slidesSubsystem),
                                         new TransferStowCommand(transferSubsystem),
                                         new InstantCommand(()-> {
                                             driveSpeed = 1;
@@ -189,18 +186,18 @@ public class BlueTeleOp extends CommandOpMode {
                                         new InstantCommand(()->{
                                             slidesSubsystem.NoPowerSlides();
                                         })
-                                    ),
-                                    //we missed the slam down, lower the transfer to try again.
-                                    new SequentialCommandGroup(
-                                            new TransferStowCommand(transferSubsystem),
-                                            new InstantCommand(()-> {
-                                                driveSpeed = 1;
-                                            })
-                                    ),
-                                    //hold the left trigger down to lower down
-                                    () -> m_driveDriver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) < 0.5
-                            )
-                    )
+                                ),
+                                //we missed the slam down, lower the transfer to try again.
+                                new SequentialCommandGroup(
+                                        new TransferStowCommand(transferSubsystem),
+                                        new InstantCommand(()-> {
+                                            driveSpeed = 1;
+                                        })
+                                ),
+                                //hold the left trigger down to lower down
+                                () -> m_driveDriver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) < 0.5
+                        )
+                )
         );
 
         //intaking
@@ -217,7 +214,7 @@ public class BlueTeleOp extends CommandOpMode {
         ).whenInactive(
                 //retract and stage if we have the sample
                 new SequentialCommandGroup(
-                    new IntakeOffCommand(intakeSubsystem),
+                        new IntakeOffCommand(intakeSubsystem),
                         new InstantCommand(()-> {
                             driveSpeed = 1;
                         }),
@@ -233,19 +230,19 @@ public class BlueTeleOp extends CommandOpMode {
         //Go high on left bumper
         m_driveDriver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
 
-               // new ConditionalCommand(
-                    new SequentialCommandGroup(
-                            new CloseGripplerCommand(transferSubsystem),
-                            new WaitCommand(200),
-                            new ParallelCommandGroup(
-                                    new SlidesHighBasketCommand(slidesSubsystem),
-                                    new TransferFlipCommand(transferSubsystem)
-                            ),
-                            new InstantCommand(()-> {
-                                driveSpeed = 0.8;
-                                robotState.slidePosition = RobotStateSubsystem.SlideHeight.HIGH;
-                            })
-                    )
+                // new ConditionalCommand(
+                new SequentialCommandGroup(
+                        new CloseGripplerCommand(transferSubsystem),
+                        new WaitCommand(200),
+                        new ParallelCommandGroup(
+                                new SlidesHighBasketCommand(slidesSubsystem),
+                                new TransferFlipCommand(transferSubsystem)
+                        ),
+                        new InstantCommand(()-> {
+                            driveSpeed = 0.8;
+                            robotState.slidePosition = RobotStateSubsystem.SlideHeight.HIGH;
+                        })
+                )
 
         );
 
@@ -293,7 +290,7 @@ public class BlueTeleOp extends CommandOpMode {
 
         //outtake the sample
         m_driveDriver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
-            new OuttakeOnCommand(intakeSubsystem)
+                new OuttakeOnCommand(intakeSubsystem)
         ).whenReleased(
                 new IntakeOffCommand(intakeSubsystem)
         );
@@ -319,87 +316,93 @@ public class BlueTeleOp extends CommandOpMode {
         //drop the intake pivot -
         m_driveDriver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
                 new SequentialCommandGroup(
-                    new InstantCommand(intakeSubsystem::colourAwareIntake),
-                    new InstantCommand(intakeSubsystem::IncrSlidesFaster)
+                        new InstantCommand(intakeSubsystem::colourAwareIntake),
+                        new InstantCommand(intakeSubsystem::IncrSlidesFaster)
                 )
 
         );
 
-        //move the slides to the low basket - but only when in the high position
-        m_driveDriver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
-                new ConditionalCommand(
-                        new SequentialCommandGroup(
-                            new ParallelCommandGroup(
-                                    new SlidesLowBasketCommand(slidesSubsystem),
-                                    new TransferFlipCommand(transferSubsystem)
-                            ),
-                            new InstantCommand(()-> {
-                                driveSpeed = 0.5;
-                                robotState.slidePosition = RobotStateSubsystem.SlideHeight.LOW;
-                            })
-                        ),
-                        new InstantCommand(() -> {
-                            driveSpeed = 1;
-                        }),
-                        () -> robotState.slidePosition == RobotStateSubsystem.SlideHeight.HIGH
-                )
+        m_driveDriver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+                new SlidesHang(slidesSubsystem)
+
         );
 
         //reset the hooks - not ready for climb
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
-                new SequentialCommandGroup(
-                        new InstantCommand(()->{
-                            telemetry.addData("Hooks", "Up");
-                            telemetry.update();
-                        }),
-                    new AscentOpenHooksCommand(ascentSubsystem)
+//        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+//                new SequentialCommandGroup(
+//                        new InstantCommand(()->{
+//                            telemetry.addData("Hooks", "Up");
+//                            telemetry.update();
+//                        }),
+//                        new AscentOpenHooksCommand(ascentSubsystem)
+//
+//                )
+//
+//        );
 
-                )
-
-        );
-
-        //operator - lift slides and put hooks into position.
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
-                new SequentialCommandGroup(
-                        new SlidesLowBasketCommand(slidesSubsystem),
-                        new InstantCommand(()->{
-                            telemetry.addData("Hooks", "Closed");
-                            telemetry.update();
-                        }),
-                    new AscentCloseHooksCommand(ascentSubsystem)
-
-                )
-        );
-
-        //go for the climb - disable the servos to prevent breakage.
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
-                new SequentialCommandGroup(
-                       new ParallelCommandGroup(
-                            new AscentLowRungCommand(ascentSubsystem),
-                            new SequentialCommandGroup(
-                               new WaitCommand(150),
-                                new InstantCommand(() ->{
-                                    ascentSubsystem.disableServos();
-                                })
-                            )
-                       ),
-                        new WaitCommand(200),
-                        new SlidesStowCommand(slidesSubsystem)
-
-                )
-        );
-
-        //reset the hang
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(
-               new AscentStowCommand(ascentSubsystem)
-        );
-
-
-        m_driveOperator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
-                new InstantCommand(()-> {
-                    m_drive.resetHeading();
-                })
-        );
+        //slides low basket - only when coming from the high position.
+//        m_driveDriver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+//                new ConditionalCommand(
+//                        new SequentialCommandGroup(
+//                                new ParallelCommandGroup(
+//                                        new SlidesLowBasketCommand(slidesSubsystem),
+//                                        new TransferFlipCommand(transferSubsystem)
+//                                ),
+//                                new InstantCommand(()-> {
+//                                    driveSpeed = 0.5;
+//                                    robotState.slidePosition = RobotStateSubsystem.SlideHeight.LOW;
+//                                })
+//                        ),
+//                        new InstantCommand(() -> {
+//                            driveSpeed = 1;
+//                        }),
+//                        () -> robotState.slidePosition == RobotStateSubsystem.SlideHeight.HIGH
+//                )
+//        );
+//
+//
+//        //operator - lift slides and put hooks into position.
+//        m_driveOperator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+//                new SequentialCommandGroup(
+//                        new SlidesLowBasketCommand(slidesSubsystem),
+//                        new InstantCommand(()->{
+//                            telemetry.addData("Hooks", "Closed");
+//                            telemetry.update();
+//                        }),
+//                        new AscentCloseHooksCommand(ascentSubsystem)
+//
+//                )
+//        );
+//
+//        //go for the climb - disable the servos to prevent breakage.
+//        m_driveOperator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+//                new SequentialCommandGroup(
+//                        new ParallelCommandGroup(
+//                                new AscentLowRungCommand(ascentSubsystem),
+//                                new SequentialCommandGroup(
+//                                        new WaitCommand(150),
+//                                        new InstantCommand(() ->{
+//                                            ascentSubsystem.disableServos();
+//                                        })
+//                                )
+//                        ),
+//                        new WaitCommand(200),
+//                        new SlidesStowCommand(slidesSubsystem)
+//
+//                )
+//        );
+//
+//        //reset the hang
+//        m_driveOperator.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(
+//                new AscentStowCommand(ascentSubsystem)
+//        );
+//
+//
+//        m_driveOperator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+//                new InstantCommand(()-> {
+//                    m_drive.resetHeading();
+//                })
+//        );
     }
 }
 

@@ -15,6 +15,7 @@ import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.commands.ActionCommand;
 import org.firstinspires.ftc.teamcode.commands.AscentOpenHooksCommand;
 import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
@@ -78,7 +79,6 @@ public class BasketAutoFivePP extends CommandOpMode {
 
     SlidesSubsystem slidesSubsystem;
 
-    AscentSubsystem ascentSubsystem;
 
     //Change these offsets, they can be negative values
     int X_OFFSET = 0; // a larger negative number takes it closer to the basket
@@ -91,11 +91,10 @@ public class BasketAutoFivePP extends CommandOpMode {
         transferSubsystem = new TransferSubsystem(hardwareMap);
         robotState = new RobotStateSubsystem();
         slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
-        ascentSubsystem = new AscentSubsystem(hardwareMap);
 
 
         // instantiate your MecanumDrive at a particular pose.
-        PinpointDrive drive = new PinpointDrive(hardwareMap,
+        MecanumDrive drive = new MecanumDrive(hardwareMap,
                 new Pose2d(-48, -64, Math.toRadians(0)));
 
         //pose to the submersible wall

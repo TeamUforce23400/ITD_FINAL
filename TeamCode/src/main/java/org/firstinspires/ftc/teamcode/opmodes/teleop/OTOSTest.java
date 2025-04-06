@@ -7,10 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
-import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
 import org.firstinspires.ftc.teamcode.commands.DefaultOTOSDrive;
 import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
-import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.OTOSDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;

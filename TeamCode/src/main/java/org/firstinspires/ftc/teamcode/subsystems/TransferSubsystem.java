@@ -19,12 +19,12 @@ public class TransferSubsystem extends SubsystemBase {
     // Define variables
     private double backwardsTransferPosition = 0;
     // private double stowedTransferPosition = 0;//higher number is out further from slides
-    private double stowedPosition = 0.337;
+    private double stowedPosition = 0.415;
     private double flippedPosition = 1.0; //higher number is harder on the bar and padding
     private double middleGripplerRotation = 0.5;
     private double leftGripplerRotation = 0;
     private double rightGripplerRotation = 1;
-    private double closedGripplerPosition = 0.5;
+    private double closedGripplerPosition = 0.6;
     private double openGripplerPosition = 0;
 
     public TransferSubsystem(final HardwareMap hMap) {
