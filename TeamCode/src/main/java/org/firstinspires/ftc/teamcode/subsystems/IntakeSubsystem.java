@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.opencv.core.Point3;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -24,8 +25,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private Servo intakeLeftPivot;
     private Servo intakeRightPivot;
-    private Servo intakeLeftSlide;
-    private Servo intakeRightSlide;
+    public static Servo intakeLeftSlide;
+    public static Servo intakeRightSlide;
 
     private Servo poopChute;
 
@@ -71,6 +72,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private boolean isPooping = true;
 
+    public static Servo turretServo;
+    public static Servo clawYawServo;
+
+    private final LimelightDetection limelight;
+
 
     public IntakeSubsystem(final HardwareMap hMap, Telemetry telemetry){
 
@@ -83,6 +89,11 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeLeftSlide = hMap.get(Servo.class, "ll");
         intakeRightSlide = hMap.get(Servo.class, "rl");
         poopChute = hMap.get(Servo.class, "pc");
+
+        turretServo = hMap.get(Servo.class, "turret");
+        clawYawServo = hMap.get(Servo.class, "claw_yaw");
+
+        limelight = new LimelightDetection(hMap);
 
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -104,6 +115,27 @@ public class IntakeSubsystem extends SubsystemBase {
         poopChuteClose();
 
     }
+
+    @Override
+    public void periodic() {
+        // 1) DON’T do 'new LimelightDetection(hardwareMap)'—use your field!
+        limelight.runDetection();
+
+        if (LimelightDetection.resultExists) {
+            Point3 tgt = LimelightDetection.worldCoordinates;
+            AutoAim.targetSystemPosition = tgt;
+            AutoAim.sampleYaw            = LimelightDetection.sampleYaw;
+            AutoAim.setTargetPositions();
+
+            intakeLeftPivot .setPosition(0.38);
+            intakeRightPivot.setPosition(0.43);
+        } else {
+            intakeLeftPivot .setPosition(0);
+            intakeRightPivot.setPosition(0);
+        }
+    }
+
+
 
     public void Intake() {
         //Turns the intake on
