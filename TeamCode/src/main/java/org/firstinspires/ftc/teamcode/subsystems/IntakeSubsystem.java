@@ -68,6 +68,10 @@ public class IntakeSubsystem extends SubsystemBase {
         AUTO_ANY
     }
 
+    private boolean scanningEnabled = true;      // only sample when true
+    private Point3 lastTarget;
+    private double lastYaw;
+
     private Telemetry telemetry;
 
     private boolean isPooping = true;
@@ -117,25 +121,54 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     @Override
+//    public void periodic() {
+//        // 1) DON’T do 'new LimelightDetection(hardwareMap)'—use your field!
+//        limelight.runDetection();
+//
+//        if (LimelightDetection.resultExists) {
+//            Point3 tgt = LimelightDetection.worldCoordinates;
+//            AutoAim.targetSystemPosition = tgt;
+//            AutoAim.sampleYaw            = LimelightDetection.sampleYaw;
+//            AutoAim.setTargetPositions();
+//
+//            intakeLeftPivot .setPosition(0.38);
+//            intakeRightPivot.setPosition(0.43);
+//        } else {
+//            intakeLeftPivot .setPosition(0);
+//            intakeRightPivot.setPosition(0);
+//        }
+//    }
+
     public void periodic() {
-        // 1) DON’T do 'new LimelightDetection(hardwareMap)'—use your field!
-        limelight.runDetection();
-
-        if (LimelightDetection.resultExists) {
-            Point3 tgt = LimelightDetection.worldCoordinates;
-            AutoAim.targetSystemPosition = tgt;
-            AutoAim.sampleYaw            = LimelightDetection.sampleYaw;
-            AutoAim.setTargetPositions();
-
-            intakeLeftPivot .setPosition(0.38);
-            intakeRightPivot.setPosition(0.43);
-        } else {
-            intakeLeftPivot .setPosition(0);
-            intakeRightPivot.setPosition(0);
+        if (scanningEnabled) {
+            // continuously sample…
+            limelight.runDetection();
+            if (LimelightDetection.resultExists) {
+                // store the last valid sample
+                lastTarget = LimelightDetection.worldCoordinates;
+                lastYaw = LimelightDetection.sampleYaw;
+            }
         }
     }
 
+    public void fireOneShot() {
+        if (lastTarget != null) {
+            scanningEnabled = false;
+            // do the extend + yaw math
+            AutoAim.targetSystemPosition = lastTarget;
+            AutoAim.sampleYaw            = lastYaw;
+            AutoAim.setTargetPositions();
+            // drop pivots
+            intakeLeftPivot .setPosition(0.45);
+            intakeRightPivot.setPosition(0.45);
+        }
+    }
 
+    public void resetArm() {
+        intakeLeftPivot .setPosition(0);
+        intakeRightPivot.setPosition(0);
+        scanningEnabled = true;
+    }
 
     public void Intake() {
         //Turns the intake on

@@ -31,8 +31,8 @@ public class LimelightDetection{
     public static int secondMode = -1;
     final double X_CAMERA = 0;
     final double Y_CAMERA = 10;
-    final double Z_CAMERA = 18;
-    public static double PITCH_CAMERA = Math.toRadians(42);
+    final double Z_CAMERA = 20;
+    public static double PITCH_CAMERA = Math.toRadians(10);
 
     /**     Auxiliary variables     **/
     public ElapsedTime detectionTimer = new ElapsedTime();
