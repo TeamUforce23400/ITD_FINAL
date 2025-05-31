@@ -28,6 +28,8 @@ public class LimelightDetection{
 
     /**     External parameters     */
     public static int mode = 2;
+
+
     public static int secondMode = -1;
     final double X_CAMERA = 0;
     final double Y_CAMERA = 10;
