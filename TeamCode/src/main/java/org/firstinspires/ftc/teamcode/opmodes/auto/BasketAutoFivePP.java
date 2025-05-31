@@ -222,7 +222,7 @@ public class BasketAutoFivePP extends CommandOpMode {
                 .splineToLinearHeading(new Pose2d(-60, -58, Math.toRadians(90)), Math.toRadians(90))
                 .endTrajectory();
 
-        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
+//        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
         intakeSubsystem.intakePivotDown();
         transferSubsystem.closeGrippler();
 

@@ -198,8 +198,8 @@ public class SpecimenAutoPPFourSydney extends CommandOpMode {
                 .setTangent(Math.toRadians(-90))
                 .splineToLinearHeading(parkPose, Math.toRadians(-90))
                 .endTrajectory();
-
-        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.AUTO_ANY);
+//
+//        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.AUTO_ANY);
         intakeSubsystem.intakePivotDown();
         transferSubsystem.closeGrippler();
 

@@ -187,7 +187,7 @@ public class SpecimenAutoPPFive extends CommandOpMode {
                 .splineToLinearHeading(firstSpecimenDropPose, Math.toRadians(90))
                 .endTrajectory();
 
-        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
+//        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
         intakeSubsystem.intakePivotDown();
         transferSubsystem.closeGrippler();
 

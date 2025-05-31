@@ -193,7 +193,7 @@ public class BasketAutoPP extends CommandOpMode {
                 .splineToLinearHeading(new Pose2d(-10,-10,Math.toRadians(180)),Math.toRadians(0))
                 .endTrajectory();
 
-        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
+//        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
         intakeSubsystem.intakePivotDown();
         transferSubsystem.closeGrippler();
 

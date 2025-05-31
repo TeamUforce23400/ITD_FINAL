@@ -225,7 +225,7 @@ public class BasketAutoFourPP extends CommandOpMode {
                 .splineToLinearHeading(new Pose2d(-19, -3, Math.toRadians(180)), Math.toRadians(0), new TranslationalVelConstraint(85))
                 .endTrajectory();
 
-        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
+//        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.NEUTRAL);
         intakeSubsystem.intakePivotDown();
         transferSubsystem.closeGrippler();
 

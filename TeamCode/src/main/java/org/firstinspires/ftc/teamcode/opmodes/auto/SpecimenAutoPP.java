@@ -202,8 +202,8 @@ public class SpecimenAutoPP extends CommandOpMode {
                 .setTangent(Math.toRadians(180))
                 .splineToLinearHeading(firstSpecimenDropPose, Math.toRadians(90))
                 .endTrajectory();
-
-        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.AUTO_ANY);
+//
+//        intakeSubsystem.setDesiredColour(IntakeSubsystem.SampleColour.AUTO_ANY);
         intakeSubsystem.intakePivotDown();
         transferSubsystem.closeGrippler();
 

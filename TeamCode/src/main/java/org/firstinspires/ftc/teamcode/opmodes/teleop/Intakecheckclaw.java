@@ -45,12 +45,8 @@ public class Intakecheckclaw extends CommandOpMode {
         driver   = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
 
-        // 2) Subsystems
-        driveSubsystem    = new DriveSubsystem(hardwareMap, telemetry);
+
         intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
-        transferSubsystem = new TransferSubsystem(hardwareMap);
-        slidesSubsystem   = new SlidesSubsystem(hardwareMap, telemetry);
-        robotState        = new RobotStateSubsystem();
 
 
         // 5) Button B: fire one-shot using last Limelight sample

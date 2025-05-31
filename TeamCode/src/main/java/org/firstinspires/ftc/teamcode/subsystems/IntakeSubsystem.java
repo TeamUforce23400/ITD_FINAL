@@ -95,7 +95,7 @@ public class IntakeSubsystem extends SubsystemBase {
         poopChute = hMap.get(Servo.class, "pc");
 
         turretServo = hMap.get(Servo.class, "turret");
-        clawYawServo = hMap.get(Servo.class, "claw_yaw");
+        clawYawServo = hMap.get(Servo.class, "wrist");
 
         limelight = new LimelightDetection(hMap);
 
@@ -141,33 +141,67 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void periodic() {
         if (scanningEnabled) {
-            // continuously sample…
+            // run Limelight each tick
             limelight.runDetection();
+
             if (LimelightDetection.resultExists) {
                 // store the last valid sample
                 lastTarget = LimelightDetection.worldCoordinates;
-                lastYaw = LimelightDetection.sampleYaw;
+                lastYaw    = LimelightDetection.sampleYaw;
+                telemetry.addData("Limelight stored sample",
+                        String.format("(%.2f, %.2f), yaw=%.4f",
+                                lastTarget.x, lastTarget.y, lastYaw));
+            } else {
+                telemetry.addData("Limelight", "No valid target this tick");
             }
+        } else {
+            telemetry.addLine("Scanning disabled (arm is down)");
         }
+        telemetry.update();
     }
 
+    /**
+     * “Fire” button: freeze the last sample and run a one-shot extend + pivot-down.
+     * After this, scanningEnabled=false so no further sampling until resetArm().
+     */
     public void fireOneShot() {
         if (lastTarget != null) {
             scanningEnabled = false;
-            // do the extend + yaw math
+            telemetry.addLine("fireOneShot: using last sample → aiming & pivot-down");
+            telemetry.addData("lastTarget (x,y)", String.format("(%.2f, %.2f)",
+                    lastTarget.x, lastTarget.y));
+            telemetry.addData("lastYaw", String.format("%.4f", lastYaw));
+
+            // run AutoAim on the frozen sample
             AutoAim.targetSystemPosition = lastTarget;
             AutoAim.sampleYaw            = lastYaw;
             AutoAim.setTargetPositions();
+
             // drop pivots
-            intakeLeftPivot .setPosition(0.45);
-            intakeRightPivot.setPosition(0.45);
+            intakeLeftPivot .setPosition(intakePivotDownPosition);
+            intakeRightPivot.setPosition(intakePivotDownPosition + 0.05);
+            telemetry.addData("Pivots", String.format("Dropped to (%.2f, %.2f)",
+                    intakePivotDownPosition,
+                    intakePivotDownPosition + 0.05));
+        } else {
+            telemetry.addData("fireOneShot", "No prior sample → nothing to aim");
         }
+        telemetry.update();
     }
 
+    /**
+     * “Reset” button: raise pivots, retract slides, reset turret to 0.5, and re-enable scanning.
+     */
     public void resetArm() {
-        intakeLeftPivot .setPosition(0);
-        intakeRightPivot.setPosition(0);
         scanningEnabled = true;
+        intakeLeftPivot  .setPosition(intakePivotUpPosition);
+        intakeRightPivot .setPosition(intakePivotUpPosition);
+        turretServo      .setPosition(0.5);
+        intakeLeftSlide  .setPosition(intakeSlidesInPosition);
+        intakeRightSlide .setPosition(intakeSlidesInPosition);
+
+        telemetry.addLine("resetArm: pivots up, slides in, turret=0.5, resuming scanning");
+        telemetry.update();
     }
 
     public void Intake() {

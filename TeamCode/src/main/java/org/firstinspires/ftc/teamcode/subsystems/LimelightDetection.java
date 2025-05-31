@@ -21,7 +21,7 @@ public class LimelightDetection{
 
     public LimelightDetection(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(2);
+        limelight.pipelineSwitch(1);
         limelight.setPollRateHz(400);
         limelight.start();
     }
@@ -148,7 +148,7 @@ public class LimelightDetection{
     public void getYaw() {
         double length = euclideanDist(points[0], points[1]),
                 width = euclideanDist(points[1], points[2]);
-        //
+
         if (length > width)
             sampleYaw = Math.PI / 2;
         else
