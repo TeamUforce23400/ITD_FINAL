@@ -97,7 +97,7 @@ public class IntakeSubsystem extends SubsystemBase {
         turretServo = hMap.get(Servo.class, "turret");
         clawYawServo = hMap.get(Servo.class, "wrist");
 
-        limelight = new LimelightDetection(hMap);
+        limelight = new LimelightDetection(hMap, telemetry);
 
         intakeMotor.setDirection(DcMotor.Direction.REVERSE);
 
