@@ -60,6 +60,6 @@ public class Intakecheckclaw extends CommandOpMode {
         telemetry.addLine("A: extend/stow");
         telemetry.addLine("B: fire one-shot");
         telemetry.addLine("X: reset arm");
-        telemetry.update();
+//        telemetry.update();
     }
 }
