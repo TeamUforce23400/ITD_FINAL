@@ -1,13 +1,10 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 
 public class TeleOpIntakeCommand extends SequentialCommandGroup {
 

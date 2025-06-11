@@ -4,13 +4,13 @@ import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 
-public class TransferStowCommand extends CommandBase {
+public class TransferSpecimenDropCommand extends CommandBase {
 
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final TransferSubsystem transferSubsystem;
 
 
-    public TransferStowCommand(TransferSubsystem subsystem) {
+    public TransferSpecimenDropCommand(TransferSubsystem subsystem) {
         transferSubsystem = subsystem;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(subsystem);
@@ -18,11 +18,11 @@ public class TransferStowCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        transferSubsystem.stowTransfer();
+        transferSubsystem.specimenDrop();
     }
 
     @Override
     public boolean isFinished() {
-        return transferSubsystem.IsTransferStowed();
+        return transferSubsystem.IsTransferSpecimenDrop();
     }
 }

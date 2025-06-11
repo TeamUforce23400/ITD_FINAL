@@ -1,18 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import android.graphics.Color;
-
-import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.controller.PIDFController;
-import com.qualcomm.hardware.lynx.LynxI2cDeviceSynch;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.opencv.core.Point3;
 
@@ -23,8 +15,9 @@ public class IntakeSubsystem extends SubsystemBase {
     //Define motors and servos
     private DcMotor intakeMotor;
 
-    private Servo intakeLeftPivot;
-    private Servo intakeRightPivot;
+    private Servo intakePivot;
+//    private Servo intakeRightPivot;
+    private Servo intakeClaw;
     public static Servo intakeLeftSlide;
     public static Servo intakeRightSlide;
 
@@ -50,23 +43,27 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private double intakePoopClose = 0.3;
 
-    private final float[] hsvValues = new float[3];
+    private double turretRest = 0.5;
+    private double turretSide = 0.27;
 
-    private SampleColour desiredColour = SampleColour.NEUTRAL;
+    private double turretTransfer = 0.0;
+//    private final float[] hsvValues = new float[3];
+//
+//    private SampleColour desiredColour = SampleColour.NEUTRAL;
 
-    public enum SampleColour
-    {
-        NONE,
-        RED,
-        BLUE,
-        NEUTRAL,
-
-        RED_OR_NEUTRAL,
-
-        BLUE_OR_NEUTRAL,
-
-        AUTO_ANY
-    }
+//    public enum SampleColour
+//    {
+//        NONE,
+//        RED,
+//        BLUE,
+//        NEUTRAL,
+//
+//        RED_OR_NEUTRAL,
+//
+//        BLUE_OR_NEUTRAL,
+//
+//        AUTO_ANY
+//    }
 
     private boolean scanningEnabled = true;      // only sample when true
     private Point3 lastTarget;
@@ -86,59 +83,43 @@ public class IntakeSubsystem extends SubsystemBase {
 
         this.telemetry = telemetry;
 
-        intakeMotor = hMap.get(DcMotor.class, "intake");
+//        intakeMotor = hMap.get(DcMotor.class, "intake");
 
-        intakeLeftPivot = hMap.get(Servo.class, "pl");
-        intakeRightPivot = hMap.get(Servo.class, "pr");
+        intakePivot = hMap.get(Servo.class, "pl");
+//        intakeRightPivot = hMap.get(Servo.class, "pr");
         intakeLeftSlide = hMap.get(Servo.class, "ll");
         intakeRightSlide = hMap.get(Servo.class, "rl");
-        poopChute = hMap.get(Servo.class, "pc");
+//        poopChute = hMap.get(Servo.class, "pc");
 
         turretServo = hMap.get(Servo.class, "turret");
         clawYawServo = hMap.get(Servo.class, "wrist");
+        intakeClaw = hMap.get(Servo.class, "intakeclaw");
 
         limelight = new LimelightDetection(hMap, telemetry);
 
-        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
+//        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
 
-        colourSensor = hMap.get(RevColorSensorV3.class, "cs");
+//        colourSensor = hMap.get(RevColorSensorV3.class, "cs");
 
         //TODO: Test fast mode
-        ((LynxI2cDeviceSynch) colourSensor.getDeviceClient()).setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
+//        ((LynxI2cDeviceSynch) colourSensor.getDeviceClient()).setBusSpeed(LynxI2cDeviceSynch.BusSpeed.FAST_400K);
 
 
-        colorPin0 = hMap.digitalChannel.get("digital0");
-        colorPin1 = hMap.digitalChannel.get("digital1");
+//        colorPin0 = hMap.digitalChannel.get("digital0");
+//        colorPin1 = hMap.digitalChannel.get("digital1");
 
-        intakeLeftPivot.setDirection(Servo.Direction.REVERSE);
-        intakeRightPivot.setDirection(Servo.Direction.FORWARD);
+        intakePivot.setDirection(Servo.Direction.REVERSE);
         intakeRightSlide.setDirection(Servo.Direction.REVERSE);
+        intakeLeftSlide.setDirection(Servo.Direction.FORWARD);
 
-        intakePivotUp();
+        LimelightDetection.mode = 2;
+        LimelightDetection.secondMode = -1;
+        resetArmForIntake();
         intakeSlidesIn();
-        poopChuteClose();
 
     }
 
     @Override
-//    public void periodic() {
-//        // 1) DON’T do 'new LimelightDetection(hardwareMap)'—use your field!
-//        limelight.runDetection();
-//
-//        if (LimelightDetection.resultExists) {
-//            Point3 tgt = LimelightDetection.worldCoordinates;
-//            AutoAim.targetSystemPosition = tgt;
-//            AutoAim.sampleYaw            = LimelightDetection.sampleYaw;
-//            AutoAim.setTargetPositions();
-//
-//            intakeLeftPivot .setPosition(0.38);
-//            intakeRightPivot.setPosition(0.43);
-//        } else {
-//            intakeLeftPivot .setPosition(0);
-//            intakeRightPivot.setPosition(0);
-//        }
-//    }
-
     public void periodic() {
         if (scanningEnabled) {
             // run Limelight each tick
@@ -178,8 +159,7 @@ public class IntakeSubsystem extends SubsystemBase {
             AutoAim.setTargetPositions();
 
             // drop pivots
-            intakeLeftPivot .setPosition(intakePivotDownPosition);
-            intakeRightPivot.setPosition(intakePivotDownPosition + 0.05);
+            intakePivot .setPosition(intakePivotDownPosition);
             telemetry.addData("Pivots", String.format("Dropped to (%.2f, %.2f)",
                     intakePivotDownPosition,
                     intakePivotDownPosition + 0.05));
@@ -192,35 +172,57 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * “Reset” button: raise pivots, retract slides, reset turret to 0.5, and re-enable scanning.
      */
-    public void resetArm() {
+    public void resetArmForIntake() {
         scanningEnabled = true;
-        intakeLeftPivot  .setPosition(intakePivotUpPosition);
-        intakeRightPivot .setPosition(intakePivotUpPosition);
-        turretServo      .setPosition(0.5);
-        intakeLeftSlide  .setPosition(intakeSlidesInPosition);
-        intakeRightSlide .setPosition(intakeSlidesInPosition);
+        intakePivotUp();
+        turretReset();
+        intakeSlidesIn();
+        intakeClawOpen();
 
         telemetry.addLine("resetArm: pivots up, slides in, turret=0.5, resuming scanning");
         telemetry.update();
     }
 
-    public void Intake() {
-        //Turns the intake on
-        intakeMotor.setPower(1.0);
+    public void resetArmForTransfer() {
+        scanningEnabled = false;
+        intakeClawClose();
+        intakePivotUp();
+        turretResetTransfer();
+        intakeSlidesIn();
+
+        telemetry.addLine("resetArm: pivots up, slides in, turret=0.5, resuming scanning");
+        telemetry.update();
     }
 
-    public void IntakeOff(){
-        intakeMotor.setPower(0);
+    public void turretReset(){
+        turretServo.setPosition(turretRest);
     }
 
-    public void Outtake() {
-        //Revers the intake
-        intakeMotor.setPower(-1);
+    public void turretResetTransfer(){
+        turretServo.setPosition(turretTransfer);
     }
 
-    public void slowIntake(){
-        intakeMotor.setPower(0.3);
+    public void turretSideTransfer(){
+        turretServo.setPosition(turretSide);
     }
+
+//    public void Intake() {
+//        //Turns the intake on
+//        intakeMotor.setPower(1.0);
+//    }
+//
+//    public void IntakeOff(){
+//        intakeMotor.setPower(0);
+//    }
+//
+//    public void Outtake() {
+//        //Revers the intake
+//        intakeMotor.setPower(-1);
+//    }
+//
+//    public void slowIntake(){
+//        intakeMotor.setPower(0.3);
+//    }
 
     public void intakeSlidesIn() {
         //Brings the slides in
@@ -250,15 +252,15 @@ public class IntakeSubsystem extends SubsystemBase {
         setIntakeSlidePosition(newPos);
     }
 
-    public boolean hasItemInIntake(){
-        telemetry.addData("IntakeColour", getDesiredIntakeColour());
-        telemetry.addData("Desired", getDesiredIntakeColour());
-        telemetry.addData("Result", getCurrentIntakeColour() == getDesiredIntakeColour());
-        telemetry.update();
-
-        return getCurrentIntakeColour() == getDesiredIntakeColour();
-
-    }
+//    public boolean hasItemInIntake(){
+//        telemetry.addData("IntakeColour", getDesiredIntakeColour());
+//        telemetry.addData("Desired", getDesiredIntakeColour());
+//        telemetry.addData("Result", getCurrentIntakeColour() == getDesiredIntakeColour());
+//        telemetry.update();
+//
+//        return getCurrentIntakeColour() == getDesiredIntakeColour();
+//
+//    }
 
     public boolean AreIntakeSlidesIn() {
         return true;
@@ -277,13 +279,13 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeRightSlide.setPosition(intakeSlidesOutPosition * 2.5);
     }
 
-    public void SetPoopMode(boolean mode){
-        isPooping = mode;
-    }
-
-    public boolean IsPooping(){
-        return isPooping;
-    }
+//    public void SetPoopMode(boolean mode){
+//        isPooping = mode;
+//    }
+//
+//    public boolean IsPooping(){
+//        return isPooping;
+//    }
 
     public double getIntakeSlidePosition(){
         return intakeLeftSlide.getPosition();
@@ -299,8 +301,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakePivotUp() {
-        intakeLeftPivot.setPosition(intakePivotUpPosition);
-        intakeRightPivot.setPosition(intakePivotUpPosition);
+        intakePivot.setPosition(intakePivotUpPosition);
     }
 
     public boolean IsIntakePivotedUp() {
@@ -308,92 +309,140 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakePivotDown() {
-        intakeLeftPivot.setPosition(intakePivotDownPosition);
-        intakeRightPivot.setPosition(intakePivotDownPosition+0.05);
+        intakePivot.setPosition(intakePivotDownPosition);
+    }
+
+    public void intakeClawOpen(){
+        intakeClaw.setPosition(0.5);
+    }
+
+    public void intakeClawClose(){
+        intakeClaw.setPosition(1.0);
+    }
+
+    public void intakeClawLoose(){
+        intakeClaw.setPosition(0.9);
+    }
+
+    public void colorNeutral(){
+        LimelightDetection.mode = 2;
+        LimelightDetection.secondMode = -1;
+    }
+
+    public void colorBlue(){
+        LimelightDetection.mode = 1;
+        LimelightDetection.secondMode = -1;
+    }
+
+    public void colorRed(){
+        LimelightDetection.mode = 0;
+        LimelightDetection.secondMode = -1;
+    }
+
+    public void colorRedOrNeutral(){
+        LimelightDetection.mode = 0;
+        LimelightDetection.secondMode = 1;
+    }
+
+    public void colorBlueOrNeutral(){
+        LimelightDetection.mode = 1;
+        LimelightDetection.secondMode = 1;
     }
 
     public boolean IsIntakePivotedDown() {
         return true;
     }
 
-    public void poopChuteOpen() {
-        poopChute.setPosition(intakePoopOpen);
-    }
+//    public void poopChuteOpen() {
+//        poopChute.setPosition(intakePoopOpen);
+//    }
 
     public boolean IsPoopChuteOpened(){
         return true;
     }
 
-    public void poopChuteClose() {
-        poopChute.setPosition(intakePoopClose);
-    }
-
-    public boolean IsPoopChuteClosed(){
-        return true;
-    }
-
-    public SampleColour getCurrentIntakeColour(){
 
 
-       NormalizedRGBA colors = colourSensor.getNormalizedColors();
-        Color.colorToHSV(colors.toColor(), hsvValues);
+//    public void poopChuteClose() {
+//        poopChute.setPosition(intakePoopClose);
+//    }
+//
+//    public boolean IsPoopChuteClosed(){
+//        return true;
+//    }
 
-        telemetry.addData("HSV", hsvValues[0]);
-        telemetry.addData("HSV2", hsvValues[1]);
-        telemetry.update();
-
-        if(hsvValues[0] > 200 ) {
-            if(desiredColour == SampleColour.BLUE_OR_NEUTRAL){
-                return SampleColour.BLUE_OR_NEUTRAL;
-            }
-            if(desiredColour == SampleColour.AUTO_ANY){
-                return SampleColour.AUTO_ANY;
-            }
-            return SampleColour.BLUE;
-        }
-        if(hsvValues[0] >= 45 && hsvValues[0] <=90) {
-            if(desiredColour == SampleColour.RED_OR_NEUTRAL){
-                return SampleColour.RED_OR_NEUTRAL;
-            }
-            if(desiredColour == SampleColour.BLUE_OR_NEUTRAL){
-                return SampleColour.BLUE_OR_NEUTRAL;
-            }
-            if(desiredColour == SampleColour.AUTO_ANY){
-                return SampleColour.AUTO_ANY;
-            }
-            //telemetry.addData("FOUND", "NEUTRAL");
-            //telemetry.update();
-            return SampleColour.NEUTRAL;
-        }
-        if(hsvValues[0] >= 0 && hsvValues[1] > 0) {
-            if(desiredColour == SampleColour.RED_OR_NEUTRAL){
-                return SampleColour.RED_OR_NEUTRAL;
-            }
-            if(desiredColour == SampleColour.AUTO_ANY){
-                return SampleColour.AUTO_ANY;
-            }
-            return SampleColour.RED;
-        }
-
-        return SampleColour.NONE;
-    }
+//    public SampleColour getCurrentIntakeColour(){
+//
+//
+//       NormalizedRGBA colors = colourSensor.getNormalizedColors();
+//        Color.colorToHSV(colors.toColor(), hsvValues);
+//
+//        telemetry.addData("HSV", hsvValues[0]);
+//        telemetry.addData("HSV2", hsvValues[1]);
+//        telemetry.update();
+//
+//        if(hsvValues[0] > 200 ) {
+//            if(desiredColour == SampleColour.BLUE_OR_NEUTRAL){
+//                return SampleColour.BLUE_OR_NEUTRAL;
+//            }
+//            if(desiredColour == SampleColour.AUTO_ANY){
+//                return SampleColour.AUTO_ANY;
+//            }
+//            return SampleColour.BLUE;
+//        }
+//        if(hsvValues[0] >= 45 && hsvValues[0] <=90) {
+//            if(desiredColour == SampleColour.RED_OR_NEUTRAL){
+//                return SampleColour.RED_OR_NEUTRAL;
+//            }
+//            if(desiredColour == SampleColour.BLUE_OR_NEUTRAL){
+//                return SampleColour.BLUE_OR_NEUTRAL;
+//            }
+//            if(desiredColour == SampleColour.AUTO_ANY){
+//                return SampleColour.AUTO_ANY;
+//            }
+//            //telemetry.addData("FOUND", "NEUTRAL");
+//            //telemetry.update();
+//            return SampleColour.NEUTRAL;
+//        }
+//        if(hsvValues[0] >= 0 && hsvValues[1] > 0) {
+//            if(desiredColour == SampleColour.RED_OR_NEUTRAL){
+//                return SampleColour.RED_OR_NEUTRAL;
+//            }
+//            if(desiredColour == SampleColour.AUTO_ANY){
+//                return SampleColour.AUTO_ANY;
+//            }
+//            return SampleColour.RED;
+//        }
+//
+//        return SampleColour.NONE;
+//    }
 
     public void setDesiredColourBlue() {
+        limelight.secondMode = -1;
+        limelight.mode = 1;
+    }
 
-        desiredColour = SampleColour.BLUE;
+    public void setDesiredColourBlueOrNeutral() {
+        limelight.secondMode = 1;
+        limelight.mode = 1;
+    }
+
+    public void setDesiredColourRedOrNeutral() {
+        limelight.secondMode = 1;
+        limelight.mode = 0;
     }
 
     public boolean IsDesiredColourBlueSet() {
         return true;
     }
 
-    public void setDesiredColour(SampleColour colour){
-        desiredColour = colour;
-    }
+//    public void setDesiredColour(SampleColour colour){
+//        desiredColour = colour;
+//    }
     public void setDesiredColourRed() {
 
-
-        desiredColour = SampleColour.RED;
+        limelight.secondMode = -1;
+        limelight.mode = 0;
     }
 
     public boolean IsDesiredColourRedSet() {
@@ -401,46 +450,47 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void setDesiredColourNeutral() {
-        desiredColour = SampleColour.NEUTRAL;
+        limelight.secondMode = -1;
+        limelight.mode = 2;
     }
 
-    public boolean IsDesiredColourNeutralSet() {
-        return true;
+//    public boolean IsDesiredColourNeutralSet() {
+//        return true;
+//    }
+//
+//    public SampleColour getDesiredIntakeColour(){
+//        return  desiredColour;
+//    }
+
+
+//    public void colourAwareIntake(){
+//
+//            //telemetry.addData("Desired:", desiredColour);
+//            //telemetry.update();
+//
+//            SampleColour currentColour = getCurrentIntakeColour();
+//
+//            if (currentColour == SampleColour.NONE) {
+//                poopChuteOpen();
+//                this.Intake();
+//            }
+//            else if(desiredColour == SampleColour.BLUE_OR_NEUTRAL && (currentColour == SampleColour.BLUE || currentColour == SampleColour.NEUTRAL)){
+//                this.IntakeOff();
+//            }
+//            else if(desiredColour == SampleColour.AUTO_ANY && (currentColour == SampleColour.AUTO_ANY)){
+//                this.IntakeOff();
+//            }
+//            else if(desiredColour == SampleColour.RED_OR_NEUTRAL && (currentColour == SampleColour.RED || currentColour == SampleColour.NEUTRAL)){
+//                this.IntakeOff();
+//            }
+//            else if(getCurrentIntakeColour() != desiredColour){
+//                    if(!IsPooping()) {
+//                        this.Outtake();
+//                    }
+//
+//            }else {
+//
+//                this.IntakeOff();
+//            }
     }
 
-    public SampleColour getDesiredIntakeColour(){
-        return  desiredColour;
-    }
-
-
-    public void colourAwareIntake(){
-
-            //telemetry.addData("Desired:", desiredColour);
-            //telemetry.update();
-
-            SampleColour currentColour = getCurrentIntakeColour();
-
-            if (currentColour == SampleColour.NONE) {
-                poopChuteOpen();
-                this.Intake();
-            }
-            else if(desiredColour == SampleColour.BLUE_OR_NEUTRAL && (currentColour == SampleColour.BLUE || currentColour == SampleColour.NEUTRAL)){
-                this.IntakeOff();
-            }
-            else if(desiredColour == SampleColour.AUTO_ANY && (currentColour == SampleColour.AUTO_ANY)){
-                this.IntakeOff();
-            }
-            else if(desiredColour == SampleColour.RED_OR_NEUTRAL && (currentColour == SampleColour.RED || currentColour == SampleColour.NEUTRAL)){
-                this.IntakeOff();
-            }
-            else if(getCurrentIntakeColour() != desiredColour){
-                    if(!IsPooping()) {
-                        this.Outtake();
-                    }
-
-            }else {
-
-                this.IntakeOff();
-            }
-    }
-}

@@ -2,27 +2,28 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
-public class TransferStowCommand extends CommandBase {
+public class IntakeColorRedCommand extends CommandBase {
 
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final TransferSubsystem transferSubsystem;
+    private final IntakeSubsystem intakeSubsystem;
 
 
-    public TransferStowCommand(TransferSubsystem subsystem) {
-        transferSubsystem = subsystem;
+    public IntakeColorRedCommand(IntakeSubsystem subsystem) {
+        intakeSubsystem = subsystem;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(subsystem);
     }
 
     @Override
     public void initialize() {
-        transferSubsystem.stowTransfer();
+        //turn outtake on
+        intakeSubsystem.colorRed();
     }
 
     @Override
     public boolean isFinished() {
-        return transferSubsystem.IsTransferStowed();
+        return intakeSubsystem.IsIntakePivotedDown();
     }
 }

@@ -157,6 +157,7 @@ public class LimelightDetection {
         telemetry.addData("After loop: resultExists", resultExists);
         telemetry.addData("After loop: targetIndex", targetIndex);
 
+
         // 5) If found, extract that blob’s corners into points[] and then update telemetry
         if (resultExists) {
             vertices = detectedTargets.get(targetIndex).getTargetCorners();
@@ -232,20 +233,20 @@ public class LimelightDetection {
     }
 
     // The getYaw() method remains commented out as requested
-//    public void getYaw() {
-//        double length = euclideanDist(points[0], points[1]);
-//        double width = euclideanDist(points[1], points[2]);
-//
-//        telemetry.addData("length vs width", String.format("%.1f vs %.1f", length, width));
-//
-//        if (length > width) {
-//            sampleYaw = Math.PI / 2;
-//        } else {
-//            sampleYaw = 0;
-//        }
-//        telemetry.addData("sampleYaw (rad)", String.format("%.4f", sampleYaw));
-//        telemetry.update();
-//    }
+    public void getYaw() {
+        double length = euclideanDist(points[0], points[1]);
+        double width = euclideanDist(points[1], points[2]);
+
+        telemetry.addData("length vs width", String.format("%.1f vs %.1f", length, width));
+
+        if (length > width) {
+            sampleYaw = Math.PI / 2;
+        } else {
+            sampleYaw = 0;
+        }
+        telemetry.addData("sampleYaw (rad)", String.format("%.4f", sampleYaw));
+        telemetry.update();
+    }
 
     public void runDetection() {
         resetVariables();
@@ -258,7 +259,7 @@ public class LimelightDetection {
             telemetry.addData("Limelight", "Target found! (index=%d)", targetIndex);
             telemetry.update();
             getPositions();
-//            getYaw();  // Still commented out if you prefer
+            getYaw();  // Still commented out if you prefer
         } else {
             telemetry.addData("Limelight", "No target found");
 //            telemetry.update();

@@ -7,7 +7,6 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
@@ -16,31 +15,24 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.commands.ActionCommand;
-import org.firstinspires.ftc.teamcode.commands.AutoIntakeCommand;
-import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.ColourAwareIntakeCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeOffCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakeOnCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakePoopChuteCloseCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePoopChuteOpenCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutHalfCommand;
 import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.OuttakeOnCommand;
-import org.firstinspires.ftc.teamcode.commands.SlidesStowCommand;
-import org.firstinspires.ftc.teamcode.commands.SlowIntakeCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferStowCommand;
 import org.firstinspires.ftc.teamcode.commands.groups.AutoIntakeCommandGroup;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystems.AscentSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
-import org.firstinspires.ftc.teamcode.utils.PinpointDrive;
 
 @Autonomous(name = "[OLD] SpecimenAuto PP 5", group = "Autonomous")
 @Disabled

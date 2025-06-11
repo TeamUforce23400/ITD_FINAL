@@ -1,21 +1,16 @@
 package org.firstinspires.ftc.teamcode.commands.groups;
 
 import com.arcrobotics.ftclib.command.ConditionalCommand;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 
 import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
-import org.firstinspires.ftc.teamcode.commands.ColourAwareIntakeCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeOffCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
-import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
-import org.firstinspires.ftc.teamcode.commands.MiddleGripplerRotationCommand;
 import org.firstinspires.ftc.teamcode.commands.PoopChuteCloseCommand;
-import org.firstinspires.ftc.teamcode.commands.PoopChuteOpenCommand;
 import org.firstinspires.ftc.teamcode.commands.SlowIntakeCommand;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;

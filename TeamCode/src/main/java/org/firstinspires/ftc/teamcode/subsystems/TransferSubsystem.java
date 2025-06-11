@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -17,10 +16,11 @@ public class TransferSubsystem extends SubsystemBase {
     private DigitalChannel magnetSensor;  // Digital channel Object
 
     // Define variables
-    private double backwardsTransferPosition = 0;
+    private double backwardsTransferPosition = 0.9;
     // private double stowedTransferPosition = 0;//higher number is out further from slides
-    private double stowedPosition = 0.415;
-    private double flippedPosition = 1.0; //higher number is harder on the bar and padding
+    private double stowedPosition = 0.0;
+    private double specimenDrop = 0.3;
+    private double flippedPosition = 0.6; //higher number is harder on the bar and padding
     private double middleGripplerRotation = 0.5;
     private double leftGripplerRotation = 0;
     private double rightGripplerRotation = 1;
@@ -31,10 +31,9 @@ public class TransferSubsystem extends SubsystemBase {
         armLeftServo = hMap.get(Servo.class, "opl");
         armRightServo = hMap.get(Servo.class, "opr");
         gripplerServo = hMap.get(Servo.class, "claw");
-        griggleWristServo = hMap.get(Servo.class, "griggleWrist");
-        magnetSensor = hMap.get(DigitalChannel.class, "magnet");
-
-        magnetSensor.setMode(DigitalChannel.Mode.INPUT);
+//        magnetSensor = hMap.get(DigitalChannel.class, "magnet");
+//
+//        magnetSensor.setMode(DigitalChannel.Mode.INPUT);
 
         armLeftServo.setDirection(Servo.Direction.FORWARD);
         armRightServo.setDirection(Servo.Direction.REVERSE);
@@ -47,6 +46,11 @@ public class TransferSubsystem extends SubsystemBase {
     public void backwardsTransfer() {
         armLeftServo.setPosition(backwardsTransferPosition);
         armRightServo.setPosition(backwardsTransferPosition);
+    }
+
+    public void specimenDrop() {
+        armLeftServo.setPosition(specimenDrop);
+        armRightServo.setPosition(specimenDrop);
     }
 
     public boolean IsTransferBackwards() {return true;}
@@ -104,6 +108,7 @@ public class TransferSubsystem extends SubsystemBase {
     public boolean IsGripplerOpen() {
         return true;
     }
+    public boolean IsTransferSpecimenDrop(){return true;}
 
     public void closeGrippler() {
         gripplerServo.setPosition(closedGripplerPosition);

@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.subsystems.AscentSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 public class AscentStowCommand extends CommandBase {
 
