@@ -32,21 +32,23 @@ public class IntakeSubsystem extends SubsystemBase {
     private RevColorSensorV3 colourSensor;
 
     // Define variables
-    private double intakeSlidesInPosition = 0.51;
+    private double intakeSlidesInPosition = 0.65;
 
     private double intakeSlidesOutPosition = 0.06;
 
-    private double intakePivotUpPosition = 0;
-    private double intakePivotDownPosition = 0.38;
+    private double intakePivotUpPosition = 0.2;
+    private double intakeIntakePos = 0.45;
+    private double intakePivotDownPosition = 1.0;
 
     private double intakePoopOpen = 0.85;
 
     private double intakePoopClose = 0.3;
 
-    private double turretRest = 0.5;
-    private double turretSide = 0.27;
+    private double turretRest = 0.59;
+    //0.59
+    private double turretSide = 0.28;
 
-    private double turretTransfer = 0.0;
+    private double turretTransfer = 0.017;
 //    private final float[] hsvValues = new float[3];
 //
 //    private SampleColour desiredColour = SampleColour.NEUTRAL;
@@ -111,6 +113,7 @@ public class IntakeSubsystem extends SubsystemBase {
         intakePivot.setDirection(Servo.Direction.REVERSE);
         intakeRightSlide.setDirection(Servo.Direction.REVERSE);
         intakeLeftSlide.setDirection(Servo.Direction.FORWARD);
+        turretServo.setDirection(Servo.Direction.FORWARD);
 
         LimelightDetection.mode = 2;
         LimelightDetection.secondMode = -1;
@@ -174,7 +177,7 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public void resetArmForIntake() {
         scanningEnabled = true;
-        intakePivotUp();
+        IntakePivotPos();
         turretReset();
         intakeSlidesIn();
         intakeClawOpen();
@@ -196,6 +199,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void turretReset(){
         turretServo.setPosition(turretRest);
+    }
+    public void IntakePivotPos(){
+        intakePivot.setPosition(intakeIntakePos);
     }
 
     public void turretResetTransfer(){
@@ -299,6 +305,13 @@ public class IntakeSubsystem extends SubsystemBase {
     public boolean AreIntakeSlidesOut() {
         return true;
     }
+    public void intakeClawYawBase(){
+        clawYawServo.setPosition(0.5);
+    }
+
+    public void intakeClawYawSecond(){
+        clawYawServo.setPosition(0);
+    }
 
     public void intakePivotUp() {
         intakePivot.setPosition(intakePivotUpPosition);
@@ -313,11 +326,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakeClawOpen(){
-        intakeClaw.setPosition(0.5);
+        intakeClaw.setPosition(0.0);
     }
 
     public void intakeClawClose(){
-        intakeClaw.setPosition(1.0);
+        intakeClaw.setPosition(0.5);
     }
 
     public void intakeClawLoose(){

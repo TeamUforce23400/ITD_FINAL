@@ -35,6 +35,14 @@ dependencies {
 
 repositories {
     maven {
-        url = 'https://maven.brott.dev/'
+        url 'https://maven.brott.dev/'
+    }
+
+    maven {
+        url 'https://first.wpi.edu/FRC/roborio/maven/release'
+    }
+
+    maven {
+        url 'https://frcmaven.wpi.edu/artifactory/release'
     }
 }

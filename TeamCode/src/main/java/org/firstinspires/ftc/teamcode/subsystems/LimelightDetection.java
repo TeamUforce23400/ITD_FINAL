@@ -35,9 +35,9 @@ public class LimelightDetection {
     /** External parameters (adjust via Dashboard if needed) **/
     public static int mode = 2;
     public static int secondMode = -1;
-    final double X_CAMERA = 0;
-    final double Y_CAMERA = 10;
-    final double Z_CAMERA = 20;
+    final double X_CAMERA = 22;
+    final double Y_CAMERA = 0;
+    final double Z_CAMERA = 22.1;
     public static double PITCH_CAMERA = Math.toRadians(10);
 
     /** Auxiliary variables **/
@@ -71,7 +71,7 @@ public class LimelightDetection {
     }
 
     public boolean isWithinRange(double tx, double ty) {
-        return ty < 15 && ty > -10 && Math.abs(tx) <= 14;
+        return ty < 15 && ty > -10 && Math.abs(tx) <= 19;
     }
 
     public boolean isCloser(double tx, double ty, double minTx, double minTy) {
@@ -99,16 +99,16 @@ public class LimelightDetection {
 
         // 2) List all detected blobs BEFORE filtering
         List<LLResultTypes.DetectorResult> detectedTargets = result.getDetectorResults();
-//        telemetry.addData("Detected blobs (count)", detectedTargets.size());
+        telemetry.addData("Detected blobs (count)", detectedTargets.size());
         for (int i = 0; i < detectedTargets.size(); i++) {
             LLResultTypes.DetectorResult t = detectedTargets.get(i);
             double tx = t.getTargetXDegrees();
             double ty = t.getTargetYDegrees();
             int cID = t.getClassId();
-//            telemetry.addData(
-//                    String.format("Blob %d (class, tx, ty)", i),
-//                    String.format("(%d, %.2f, %.2f)", cID, tx, ty)
-//            );
+            telemetry.addData(
+                    String.format("Blob %d (class, tx, ty)", i),
+                    String.format("(%d, %.2f, %.2f)", cID, tx, ty)
+            );
         }
 
         // 3) Now run your filtering logic to pick the “closest” valid blob
@@ -125,18 +125,18 @@ public class LimelightDetection {
 
             boolean goodColor   = isGoodColor(target);
             boolean withinRange = isWithinRange(tx, ty);
-//            telemetry.addData(
-//                    String.format("Blob %d checks", i),
-//                    String.format("colorOK=%b, rangeOK=%b", goodColor, withinRange)
-//            );
+            telemetry.addData(
+                    String.format("Blob %d checks", i),
+                    String.format("colorOK=%b, rangeOK=%b", goodColor, withinRange)
+            );
 
             if (goodColor && withinRange) {
                 boolean closer = isCloser(tx, ty, minTx, minTy);
-//                telemetry.addData(
-//                        String.format("→ isCloser check for blob %d", i),
-//                        String.format("ty(%.2f) < minTy(%.2f)? %b ; or equal-ty & tx(%.2f) < minTx(%.2f)? %b",
-//                                ty, minTy, (ty < minTy), tx, minTx, (minTy == ty && tx < minTx))
-//                );
+                telemetry.addData(
+                        String.format("→ isCloser check for blob %d", i),
+                        String.format("ty(%.2f) < minTy(%.2f)? %b ; or equal-ty & tx(%.2f) < minTx(%.2f)? %b",
+                                ty, minTy, (ty < minTy), tx, minTx, (minTy == ty && tx < minTx))
+                );
                 if (closer) {
                     minTx = Math.abs(tx);
                     minTy = ty;
@@ -145,10 +145,10 @@ public class LimelightDetection {
                     targetIndex     = i;
                     resultExists    = true;
 
-//                    telemetry.addData("→ Chosen Index", i);
-//                    telemetry.addData("→ Chosen (tx, ty)", String.format("(%.2f, %.2f)", tx, ty));
-//                    telemetry.addData("→ hAngle (rad)", String.format("%.4f", horizontalAngle));
-//                    telemetry.addData("→ vAngle (rad)", String.format("%.4f", verticalAngle));
+                    telemetry.addData("→ Chosen Index", i);
+                    telemetry.addData("→ Chosen (tx, ty)", String.format("(%.2f, %.2f)", tx, ty));
+                    telemetry.addData("→ hAngle (rad)", String.format("%.4f", horizontalAngle));
+                    telemetry.addData("→ vAngle (rad)", String.format("%.4f", verticalAngle));
                 }
             }
         }

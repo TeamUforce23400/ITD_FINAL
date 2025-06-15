@@ -35,12 +35,12 @@ public class TransferSubsystem extends SubsystemBase {
 //
 //        magnetSensor.setMode(DigitalChannel.Mode.INPUT);
 
-        armLeftServo.setDirection(Servo.Direction.FORWARD);
-        armRightServo.setDirection(Servo.Direction.REVERSE);
-        gripplerServo.setDirection(Servo.Direction.REVERSE);
-        stowTransfer();
-        griggleWristServo.setPosition(0.5);
-        openGrippler();
+//        armLeftServo.setDirection(Servo.Direction.FORWARD);
+//        armRightServo.setDirection(Servo.Direction.REVERSE);
+//        gripplerServo.setDirection(Servo.Direction.REVERSE);
+//        stowTransfer();
+////        griggleWristServo.setPosition(0.5);
+//        openGrippler();
     }
 
     public void backwardsTransfer() {
@@ -69,9 +69,9 @@ public class TransferSubsystem extends SubsystemBase {
         armRightServo.setPosition(flippedPosition);
     }
 
-    public boolean IsTransferClosed(){
-        return !magnetSensor.getState();
-    }
+//    public boolean IsTransferClosed(){
+//        return !magnetSensor.getState();
+//    }
 
     public boolean IsTransferFlipped() {
         return true;

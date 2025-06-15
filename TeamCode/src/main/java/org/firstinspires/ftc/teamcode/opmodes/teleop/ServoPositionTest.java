@@ -6,10 +6,17 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.commands.ClawCloseCommand;
 import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
+import org.firstinspires.ftc.teamcode.commands.FireOneShotCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeClawOpenCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeClawYawBaseCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeClawYawSecondCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
+import org.firstinspires.ftc.teamcode.commands.ResetArmForIntakeCommand;
 import org.firstinspires.ftc.teamcode.commands.TurretResetTransferCommand;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
@@ -19,8 +26,8 @@ import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 @TeleOp(name = "Servo Position Test")
 public class ServoPositionTest extends CommandOpMode {
 
-    private DriveSubsystem m_drive;
-    private DefaultDrive m_driveCommand;
+//    private DriveSubsystem m_drive;
+//    private DefaultDrive m_driveCommand;
     private IntakeSubsystem     intakeSubsystem;
     private TransferSubsystem   transferSubsystem;
 //    private SlidesSubsystem     slidesSubsystem;
@@ -43,22 +50,24 @@ public class ServoPositionTest extends CommandOpMode {
 //
 //        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
         robotState = new RobotStateSubsystem();
-        m_drive = new DriveSubsystem(hardwareMap, telemetry);
+//        m_drive = new DriveSubsystem(hardwareMap, telemetry);
 
-        m_driveCommand = new DefaultDrive(m_drive, () -> driver.getLeftX(),  () -> driver.getLeftY(), () -> driver.getRightX() * 0.5 , ()-> driveSpeed);
-
-
-        register(m_drive);
-        m_drive.setDefaultCommand(m_driveCommand);
+//        m_driveCommand = new DefaultDrive(m_drive, () -> driver.getLeftX(),  () -> driver.getLeftY(), () -> driver.getRightX() * 0.5 , ()-> driveSpeed);
+//
+//
+//        register(m_drive);
+//        m_drive.setDefaultCommand(m_driveCommand);
 
         //Sample Intake
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
-                new IntakeSlidesOutCommand(intakeSubsystem)
+                new FireOneShotCommand(intakeSubsystem)
         );
 
+
+
         driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
-                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem)
+                new ResetArmForIntakeCommand(intakeSubsystem)
         );
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
@@ -67,6 +76,14 @@ public class ServoPositionTest extends CommandOpMode {
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
                 new IntakePivotUpCommand(intakeSubsystem, robotState)
+        );
+
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+                new IntakePivotUpCommand(intakeSubsystem, robotState)
+        );
+
+        driver.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+                new IntakePivotDownCommand(intakeSubsystem, robotState)
         );
 
 

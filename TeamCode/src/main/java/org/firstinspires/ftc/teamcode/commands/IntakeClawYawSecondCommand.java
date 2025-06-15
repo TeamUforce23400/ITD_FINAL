@@ -3,19 +3,15 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.arcrobotics.ftclib.command.CommandBase;
 
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 
-public class IntakeSlidesInCommand extends CommandBase {
+public class IntakeClawYawSecondCommand extends CommandBase {
 
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final IntakeSubsystem intakeSubsystem;
 
-    private final TransferSubsystem transferSubsystem;
 
-
-    public IntakeSlidesInCommand(IntakeSubsystem subsystem, TransferSubsystem transfer) {
+    public IntakeClawYawSecondCommand(IntakeSubsystem subsystem) {
         intakeSubsystem = subsystem;
-        transferSubsystem = transfer;
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(subsystem);
     }
@@ -23,11 +19,11 @@ public class IntakeSlidesInCommand extends CommandBase {
     @Override
     public void initialize() {
         //turn outtake on
-        intakeSubsystem.intakeSlidesIn();
+        intakeSubsystem.intakeClawYawSecond();
     }
 
-//    @Override
-//    public boolean isFinished() {
-//        return transferSubsystem.IsTransferClosed();
-//    }
+    @Override
+    public boolean isFinished() {
+        return intakeSubsystem.IsIntakePivotedDown();
+    }
 }

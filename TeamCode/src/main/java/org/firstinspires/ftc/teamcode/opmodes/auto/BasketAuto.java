@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 import androidx.collection.ArraySet;
 
@@ -241,10 +242,12 @@ public class BasketAuto  extends CommandOpMode {
                                              ),
                                              //don't do the drop off - we don't have the sample
                                              new SequentialCommandGroup(
-                                                     /*new InstantCommand(() ->{
+                                                     */
+/*new InstantCommand(() ->{
                                                         telemetry.addData("No Item", "No sample found");
                                                         telemetry.update();
-                                                     }),*/
+                                                     }),*//*
+
                                                      new IntakeOffCommand(intakeSubsystem),
                                                      new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem).withTimeout(500)
                                              ),
@@ -316,6 +319,7 @@ public class BasketAuto  extends CommandOpMode {
 
                             })
 
+*/
 /*
                             new ParallelCommandGroup(
                                     new SequentialCommandGroup(
@@ -354,7 +358,8 @@ public class BasketAuto  extends CommandOpMode {
                             //new DeliveryResetCommandGroup
                             new TransferStowCommand(transferSubsystem),
 
-*/
+*//*
+
 
                           //  new ActionCommand(park, new ArraySet<>())
 
@@ -365,3 +370,4 @@ public class BasketAuto  extends CommandOpMode {
     }
 
 }
+*/
