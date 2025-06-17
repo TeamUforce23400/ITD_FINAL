@@ -35,8 +35,8 @@ public class LimelightDetection {
     /** External parameters (adjust via Dashboard if needed) **/
     public static int mode = 2;
     public static int secondMode = -1;
-    final double X_CAMERA = 22;
-    final double Y_CAMERA = 0;
+    final double X_CAMERA = 0;
+    final double Y_CAMERA = 21;
     final double Z_CAMERA = 22.1;
     public static double PITCH_CAMERA = Math.toRadians(10);
 
@@ -71,7 +71,7 @@ public class LimelightDetection {
     }
 
     public boolean isWithinRange(double tx, double ty) {
-        return ty < 15 && ty > -10 && Math.abs(tx) <= 19;
+        return ty < 15 && ty > -10 && Math.abs(tx) <= 18;
     }
 
     public boolean isCloser(double tx, double ty, double minTx, double minTy) {
@@ -79,16 +79,6 @@ public class LimelightDetection {
         return (minTy == ty && tx < minTx);
     }
 
-    /**
-     * This method:
-     *  1) Calls getLatestResult()
-     *  2) Logs every blob’s (classID, tx, ty)
-     *  3) Logs each blob’s pass/fail of isGoodColor and isWithinRange
-     *  4) Logs minTx/minTy and isCloser decisions
-     *  5) After the loop, logs final resultExists and targetIndex
-     *  6) If resultExists, writes out corner coordinates and then calls telemetry.update()
-     *  7) If no valid target, does not call telemetry.update()
-     */
     public void getResult() {
         // 1) Fetch latest Limelight result
         LLResult result = limelight.getLatestResult();
@@ -111,7 +101,7 @@ public class LimelightDetection {
             );
         }
 
-        // 3) Now run your filtering logic to pick the “closest” valid blob
+        // 3) Filtering logic
         double minTx = Double.POSITIVE_INFINITY;
         double minTy = Double.POSITIVE_INFINITY;
         targetIndex  = -1;
@@ -121,7 +111,6 @@ public class LimelightDetection {
             LLResultTypes.DetectorResult target = detectedTargets.get(i);
             double ty = target.getTargetYDegrees();
             double tx = target.getTargetXDegrees();
-            int cID = target.getClassId();
 
             boolean goodColor   = isGoodColor(target);
             boolean withinRange = isWithinRange(tx, ty);
@@ -153,12 +142,11 @@ public class LimelightDetection {
             }
         }
 
-        // 4) After loop, report whether we found any valid target
+        // 4) After loop
         telemetry.addData("After loop: resultExists", resultExists);
         telemetry.addData("After loop: targetIndex", targetIndex);
 
-
-        // 5) If found, extract that blob’s corners into points[] and then update telemetry
+        // 5) Corners
         if (resultExists) {
             vertices = detectedTargets.get(targetIndex).getTargetCorners();
             telemetry.addData("Corners count", vertices.size());
@@ -168,16 +156,10 @@ public class LimelightDetection {
                         String.format("Corner %d (px, py)", i),
                         String.format("(%.1f, %.1f)", points[i].x, points[i].y)
                 );
-                if (i < 3) {
-                    telemetry.addData(
-                            String.format("points[%d].x, .y", i),
-                            String.format("(%.1f, %.1f)", points[i].x, points[i].y)
-                    );
-                }
             }
             telemetry.update();
         }
-        // If no resultExists, do NOT call telemetry.update()
+        // skip update when no target
     }
 
     private double euclideanDist(Point p1, Point p2) {
@@ -185,7 +167,7 @@ public class LimelightDetection {
         double dy = p1.y - p2.y;
         double d = Math.hypot(dx, dy);
         if (p1.x == p2.x) {
-            d *= 1.8; // fudge factor for perfect vertical edge
+            d *= 1.8; // fudge
         }
         telemetry.addData("euclidDist", String.format("dx=%.1f, dy=%.1f, d=%.1f", dx, dy, d));
         return d;
@@ -197,46 +179,28 @@ public class LimelightDetection {
         double cameraTargetDist = Math.hypot(Z_CAMERA, yDist);
         double xDist = cameraTargetDist * Math.tan(horizontalAngle);
 
-//        telemetry.addData("normalAngle (rad)", String.format("%.4f", normalTargetAngle));
-//        telemetry.addData("yDist (cm)",        String.format("%.2f", yDist));
-//        telemetry.addData("camDist (cm)",      String.format("%.2f", cameraTargetDist));
-//        telemetry.addData("xDist (cm)",        String.format("%.2f", xDist));
-
         double worldX = X_CAMERA + xDist;
         double worldY = Y_CAMERA + yDist;
         detectionPosX = worldX;
         detectionPosY = worldY;
 
-        // Add to buffer
         detectionBuffer.add(new Point3(worldX, worldY, 0));
         if (detectionBuffer.size() > MAX_FRAMES) {
             detectionBuffer.removeFirst();
         }
 
-        // Compute rolling average
         double sumX = 0, sumY = 0;
         for (Point3 p : detectionBuffer) {
             sumX += p.x;
             sumY += p.y;
         }
-
-        worldCoordinates = new Point3(sumX / detectionBuffer.size(),
-                sumY / detectionBuffer.size(),
-                0);
+        worldCoordinates = new Point3(sumX / detectionBuffer.size(), sumY / detectionBuffer.size(), 0);
         faraMedieWorldCoordinates = new Point3(worldX, worldY, 0);
-
-//        telemetry.addData("latestWorld (x,y)", String.format("(%.2f, %.2f)", worldX, worldY));
-//        telemetry.addData("avgWorld (x,y)",    String.format("(%.2f, %.2f)",
-//                worldCoordinates.x,
-//                worldCoordinates.y));
-//        telemetry.update();
     }
 
-    // The getYaw() method remains commented out as requested
     public void getYaw() {
         double length = euclideanDist(points[0], points[1]);
-        double width = euclideanDist(points[1], points[2]);
-
+        double width  = euclideanDist(points[1], points[2]);
         telemetry.addData("length vs width", String.format("%.1f vs %.1f", length, width));
 
         if (length > width) {
@@ -251,22 +215,19 @@ public class LimelightDetection {
     public void runDetection() {
         resetVariables();
         telemetry.addLine("---- runDetection start ----");
-//        telemetry.update();
 
         getResult();
 
         if (resultExists) {
-            telemetry.addData("Limelight", "Target found! (index=%d)", targetIndex);
+            telemetry.addData("Limelight", String.format("Target found! (index=%d)", targetIndex));
             telemetry.update();
             getPositions();
             getYaw();  // Still commented out if you prefer
         } else {
             telemetry.addData("Limelight", "No target found");
-//            telemetry.update();
         }
 
         telemetry.addData("Limelight resultExists", resultExists);
         telemetry.addLine("---- runDetection end ----");
-//        telemetry.update();
     }
 }

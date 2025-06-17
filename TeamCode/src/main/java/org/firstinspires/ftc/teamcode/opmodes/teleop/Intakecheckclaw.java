@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
@@ -13,16 +17,25 @@ import org.firstinspires.ftc.teamcode.commands.ClawCloseCommand;
 import org.firstinspires.ftc.teamcode.commands.ClawLooseCommand;
 import org.firstinspires.ftc.teamcode.commands.CloseGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
+//import org.firstinspires.ftc.teamcode.commands.FireOneShotCommand;
 import org.firstinspires.ftc.teamcode.commands.FireOneShotCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeClawOpenCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeClawYawBaseCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeClawYawSecondCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeColorNeutralCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeColorRedCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeColorRedOrNeutralCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakePivotDownCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakePivotIntakePosCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakePivotMid;
 import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInTransferCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutHalfCommand;
 import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeResetCommand;
+import org.firstinspires.ftc.teamcode.commands.ResetArmForTransferCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesHighBasketCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesHighChamberCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesStowCommand;
@@ -38,6 +51,8 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
+
+import java.util.function.BooleanSupplier;
 
 @TeleOp(name = "Intake check")
 public class Intakecheckclaw extends CommandOpMode {
@@ -62,9 +77,9 @@ public class Intakecheckclaw extends CommandOpMode {
 
 
         intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
-        transferSubsystem = new TransferSubsystem(hardwareMap);
+//        transferSubsystem = new TransferSubsystem(hardwareMap);
 
-        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
+//        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
         robotState = new RobotStateSubsystem();
         m_drive = new DriveSubsystem(hardwareMap, telemetry);
 
@@ -75,182 +90,336 @@ public class Intakecheckclaw extends CommandOpMode {
         m_drive.setDefaultCommand(m_driveCommand);
 
         //Sample Intake
-        driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
-                new SequentialCommandGroup(
-                        //Reset Transfer
-                        new ParallelCommandGroup(
-                                new TransferStowCommand(transferSubsystem),
-                                new OpenGripplerCommand(transferSubsystem)
-                        ),
-                        //Reset Intake
-                        new IntakeResetCommand(intakeSubsystem),
-                        //Auto Aim one shot
-                        new FireOneShotCommand(intakeSubsystem),
-                        new WaitCommand(500),
-                        new ClawCloseCommand(intakeSubsystem),
-                        //Retract for Transfer
-                        new IntakePivotUpCommand(intakeSubsystem, robotState),
-                        new ParallelCommandGroup(
-                                new TurretResetTransferCommand(intakeSubsystem),
-                                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
-                                new WaitCommand(1000),
-                                new ClawLooseCommand(intakeSubsystem)
-                        ),
-                        //Transfer
-                        new WaitCommand(200),
-                        new CloseGripplerCommand(transferSubsystem),
-                        new IntakeClawOpenCommand(intakeSubsystem),
-                        new IntakeResetCommand(intakeSubsystem),
-                        //Cascades Up & Flip arm to drop
-                        new ParallelCommandGroup(
-                                new SlidesHighBasketCommand(slidesSubsystem),
-                                new TransferFlipCommand(transferSubsystem)
-                        )
+//
+//        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+//                new SequentialCommandGroup(
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new IntakeClawYawBaseCommand(intakeSubsystem),
+//                        new IntakeSlidesOutHalfCommand(intakeSubsystem),
+//                        new IntakePivotMid(intakeSubsystem, robotState)
+//                )
+//        );
 
-                )
-        );
-
-        //Add Color Choice Buttons
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
-            new IntakeColorRedCommand(intakeSubsystem)
-        );
-
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
-                new IntakeColorRedOrNeutralCommand(intakeSubsystem)
-        );
-
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
-                new IntakeColorNeutralCommand(intakeSubsystem)
-        );
-
-
-        //Drop, Reset Slides & Stow command add
-        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
                 new SequentialCommandGroup(
-                        new OpenGripplerCommand(transferSubsystem),
-                        new ParallelCommandGroup(
-                                new SlidesStowCommand(slidesSubsystem),
-                                new TransferStowCommand(transferSubsystem),
-                                new IntakeResetCommand(intakeSubsystem)
-                        )
+                        new FireOneShotCommand(intakeSubsystem)
+//                        new IntakePivotDownCommand(intakeSubsystem, robotState)
                 )
+
         );
-
-        // 6) Button X: reset arm (raise pivots & resume sampling)
-        driver.getGamepadButton(GamepadKeys.Button.X)
-                .whenPressed(new IntakeResetCommand(intakeSubsystem));
-
-        //Specimen Pick from Larger side of submersible
-        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-                new SequentialCommandGroup(
-                        //Reset Transfer
-                        new ParallelCommandGroup(
-                                //Add backwards specimen transfer
-                                new OpenGripplerCommand(transferSubsystem)
-                        ),
-                        //Reset Intake
-                        new IntakeResetCommand(intakeSubsystem),
-                        //Auto Aim one shot
-                        new FireOneShotCommand(intakeSubsystem),
-                        new WaitCommand(500),
-                        new ClawCloseCommand(intakeSubsystem),
-                        new IntakePivotUpCommand(intakeSubsystem, robotState),
-                        //Retract for Transfer
-                        new ParallelCommandGroup(
-                                new TurretNormalResetCommand(intakeSubsystem),
-                                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
-                                new WaitCommand(1000),
-                                new ClawLooseCommand(intakeSubsystem)
-                        )
-                )
-        );
-
-        //Drop in human player zone
-        operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-                new SequentialCommandGroup(
-                        //Reset Transfer
-                        new ParallelCommandGroup(
-                                new IntakeSlidesOutCommand(intakeSubsystem),
-                                new WaitCommand(500),
-                                new IntakeClawOpenCommand(intakeSubsystem)
-                        ),
-
-
-                        //Reset Intake
-                        new IntakeResetCommand(intakeSubsystem)
-                )
-        );
-
-        //Pick Alliance Specific Sample after dropping specimen
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
                 new SequentialCommandGroup(
-                        new ParallelCommandGroup(
-                                new TransferBackwardCommand(transferSubsystem),
-                                new OpenGripplerCommand(transferSubsystem)
-                        ),
-                        //Reset Intake
-                        new IntakeResetCommand(intakeSubsystem),
-                        //Auto Aim one shot
-                        new FireOneShotCommand(intakeSubsystem),
-                        new WaitCommand(500),
-                        new ClawCloseCommand(intakeSubsystem),
-                        //Retract for Transfer
-                        new IntakePivotUpCommand(intakeSubsystem, robotState),
-                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
-                        new TurretSideTransferCommand(intakeSubsystem)
+                        new FireOneShotCommand(intakeSubsystem)
+//                        new IntakePivotDownCommand(intakeSubsystem, robotState)
                 )
+
         );
 
-        //Drop in human player zone, reset Intake and Pick from Wall
+        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+                new SequentialCommandGroup(
+                        new IntakePivotDownCommand(intakeSubsystem, robotState),
+                        new WaitCommand(300),
+                        new ClawCloseCommand(intakeSubsystem),
+                        new WaitCommand(600),
+                        new TurretNormalResetCommand(intakeSubsystem),
+                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState),
+                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+                        new WaitCommand(700),
+//                        new TurretResetTransferCommand(intakeSubsystem),
+                        new IntakeSlidesInTransferCommand(intakeSubsystem, transferSubsystem)
+//                                new ClawLooseCommand(intakeSubsystem),
+                        //add outtake pick
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+
+//                                new ResetArmForTransferCommand(intakeSubsystem)
+
+
+                )
+        );
 
         operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
                 new SequentialCommandGroup(
-                        new ParallelCommandGroup(
-                                new IntakeClawOpenCommand(intakeSubsystem),
-                                new TransferBackwardCommand(transferSubsystem)
-                        ),
-                        new WaitCommand(1000),
-                        new IntakeResetCommand(intakeSubsystem)
-                )
+                        new IntakeSlidesOutCommand(intakeSubsystem),
+                        new IntakeClawOpenCommand(intakeSubsystem)
 
+//                                new ClawLooseCommand(intakeSubsystem),
+                        //add outtake pick
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+
+//                                new ResetArmForTransferCommand(intakeSubsystem)
+
+
+                )
         ).whenReleased(
                 new SequentialCommandGroup(
-                        new WaitCommand(700),
-                        new CloseGripplerCommand(transferSubsystem),
-                        //Add Slides up
-                        new SlidesHighChamberCommand(slidesSubsystem),
-                        new TransferSpecimenDropCommand(transferSubsystem)
+                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem)
                 )
         );
 
-        //Drop Specimen, Intake and reset
 
-        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(
                 new SequentialCommandGroup(
-                        new ParallelCommandGroup(
-                                new OpenGripplerCommand(transferSubsystem),
-                                new FireOneShotCommand(intakeSubsystem)
-                        ),
-                        new ParallelCommandGroup(
-                                new SequentialCommandGroup(
-                                        new WaitCommand(500),
-                                        new ClawCloseCommand(intakeSubsystem),
-                                        //Retract for Transfer
-                                        new IntakePivotUpCommand(intakeSubsystem, robotState),
-                                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
-                                        new TurretSideTransferCommand(intakeSubsystem)
-                                ),
-                                new TransferBackwardCommand(transferSubsystem),
-                                new SlidesStowCommand(slidesSubsystem)
-                        )
-                )
+                        new IntakePivotDownCommand(intakeSubsystem, robotState),
+                        new WaitCommand(300),
+                        new ClawCloseCommand(intakeSubsystem),
+                        new WaitCommand(600),
+                        new TurretNormalResetCommand(intakeSubsystem),
+                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState),
+                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+                        new WaitCommand(700),
+//                        new TurretResetTransferCommand(intakeSubsystem),
+                        new IntakeSlidesInTransferCommand(intakeSubsystem, transferSubsystem),
+                        new TurretSideTransferCommand(intakeSubsystem)
+//                                new ClawLooseCommand(intakeSubsystem),
+                        //add outtake pick
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
 
+//                                new ResetArmForTransferCommand(intakeSubsystem)
+
+
+                ));
+
+//        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+//                new IntakePivotDownCommand(intakeSubsystem, robotState)
+//        );
+
+
+//        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+//                new SequentialCommandGroup(
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new IntakeSlidesOutCommand(intakeSubsystem),
+//                        new IntakeClawYawBaseCommand(intakeSubsystem),
+//                        new IntakePivotMid(intakeSubsystem, robotState)
+//                )
+//        );
+
+//        new Trigger(() -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5)
+//                .whileActiveContinuous(
+//                        new RunCommand(() -> intakeSubsystem.adjustTurret(IntakeSubsystem.TURRET_STEP),
+//                                intakeSubsystem)
+//                );
+//
+//// Right trigger → move turret right
+//        new Trigger(() -> driver.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.5)
+//                .whileActiveContinuous(
+//                        new RunCommand(() -> intakeSubsystem.adjustTurret(-IntakeSubsystem.TURRET_STEP),
+//                                intakeSubsystem)
+//                );
+
+
+//        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whileActiveContinuous(
+//                new InstantCommand(intakeSubsystem::IncrTurretRight)
+//        );
+
+
+        driver.getGamepadButton(GamepadKeys.Button.X).whileActiveContinuous(
+                new IntakeClawYawSecondCommand(intakeSubsystem)
         );
 
-        telemetry.addLine("A: extend/stow");
-        telemetry.addLine("B: fire one-shot");
-        telemetry.addLine("X: reset arm");
-        telemetry.update();
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+                new SequentialCommandGroup(
+                                new IntakePivotDownCommand(intakeSubsystem, robotState),
+                                new WaitCommand(300),
+                                new ClawCloseCommand(intakeSubsystem),
+                                new WaitCommand(200),
+                                new TurretNormalResetCommand(intakeSubsystem),
+                                new IntakePivotIntakePosCommand(intakeSubsystem, robotState),
+                                new IntakePivotUpCommand(intakeSubsystem, robotState),
+                                new WaitCommand(700),
+                                new TurretResetTransferCommand(intakeSubsystem),
+                                new IntakeSlidesInTransferCommand(intakeSubsystem, transferSubsystem),
+//                                new ClawLooseCommand(intakeSubsystem),
+                                        //add outtake pick
+                                new IntakeClawOpenCommand(intakeSubsystem),
+                                new TurretNormalResetCommand(intakeSubsystem),
+                                new WaitCommand(500),
+                                new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+
+//                                new ResetArmForTransferCommand(intakeSubsystem)
+
+
+                )
+        );
+
+        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+                new SequentialCommandGroup(
+                        new ClawLooseCommand(intakeSubsystem),
+                        //Transfer & Slides
+                        new IntakeClawOpenCommand(intakeSubsystem),
+                        new TurretNormalResetCommand(intakeSubsystem),
+                        new WaitCommand(500),
+                        new ParallelCommandGroup(
+                                new InstantCommand(intakeSubsystem::IntakePivotPos),
+                                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem)
+                        )
+
+
+                )
+        );
+
+        driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+                new SequentialCommandGroup(
+                        new IntakePivotMid(intakeSubsystem, robotState)
+
+
+                )
+        );
+
+
+
+//        //Add Color Choice Buttons
+////        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+////            new IntakeColorRedCommand(intakeSubsystem)
+////        );
+////
+////        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
+////                new IntakeColorRedOrNeutralCommand(intakeSubsystem)
+////        );
+////
+////        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+////                new IntakeColorNeutralCommand(intakeSubsystem)
+////        );
+//
+//
+//        //Drop, Reset Slides & Stow command add
+//        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+//                new SequentialCommandGroup(
+//                        new OpenGripplerCommand(transferSubsystem),
+//                        new ParallelCommandGroup(
+//                                new SlidesStowCommand(slidesSubsystem),
+//                                new TransferStowCommand(transferSubsystem),
+//                                new IntakeResetCommand(intakeSubsystem)
+//                        )
+//                )
+//        );
+//
+//        // 6) Button X: reset arm (raise pivots & resume sampling)
+//        driver.getGamepadButton(GamepadKeys.Button.X)
+//                .whenPressed(new IntakeResetCommand(intakeSubsystem));
+//
+//        //Specimen Pick from Larger side of submersible
+//        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+//                new SequentialCommandGroup(
+//                        //Reset Transfer
+//                        new ParallelCommandGroup(
+//                                //Add backwards specimen transfer
+//                                new OpenGripplerCommand(transferSubsystem)
+//                        ),
+//                        //Reset Intake
+//                        new IntakeResetCommand(intakeSubsystem),
+//                        //Auto Aim one shot
+//                        new FireOneShotCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new ClawCloseCommand(intakeSubsystem),
+//                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+//                        //Retract for Transfer
+//                        new ParallelCommandGroup(
+//                                new TurretNormalResetCommand(intakeSubsystem),
+//                                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
+//                                new WaitCommand(1000),
+//                                new ClawLooseCommand(intakeSubsystem)
+//                        )
+//                )
+//        );
+//
+//        //Drop in human player zone
+//        operator.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+//                new SequentialCommandGroup(
+//                        //Reset Transfer
+//                        new ParallelCommandGroup(
+//                                new IntakeSlidesOutCommand(intakeSubsystem),
+//                                new WaitCommand(500),
+//                                new IntakeClawOpenCommand(intakeSubsystem)
+//                        ),
+//
+//
+//                        //Reset Intake
+//                        new IntakeResetCommand(intakeSubsystem)
+//                )
+//        );
+//
+//        //Pick Alliance Specific Sample after dropping specimen
+//
+//        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+//                new SequentialCommandGroup(
+//                        new ParallelCommandGroup(
+//                                new TransferBackwardCommand(transferSubsystem),
+//                                new OpenGripplerCommand(transferSubsystem)
+//                        ),
+//                        //Reset Intake
+//                        new IntakeResetCommand(intakeSubsystem),
+//                        //Auto Aim one shot
+//                        new FireOneShotCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new ClawCloseCommand(intakeSubsystem),
+//                        //Retract for Transfer
+//                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+//                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
+//                        new TurretSideTransferCommand(intakeSubsystem)
+//                )
+//        );
+//
+//        //Drop in human player zone, reset Intake and Pick from Wall
+//
+//        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
+//                new SequentialCommandGroup(
+//                        new ParallelCommandGroup(
+//                                new IntakeClawOpenCommand(intakeSubsystem),
+//                                new TransferBackwardCommand(transferSubsystem)
+//                        ),
+//                        new WaitCommand(1000),
+//                        new IntakeResetCommand(intakeSubsystem)
+//                )
+//
+//        ).whenReleased(
+//                new SequentialCommandGroup(
+//                        new WaitCommand(700),
+//                        new CloseGripplerCommand(transferSubsystem),
+//                        //Add Slides up
+//                        new SlidesHighChamberCommand(slidesSubsystem),
+//                        new TransferSpecimenDropCommand(transferSubsystem)
+//                )
+//        );
+//
+//        //Drop Specimen, Intake and reset
+//
+//        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+//                new SequentialCommandGroup(
+//                        new ParallelCommandGroup(
+//                                new OpenGripplerCommand(transferSubsystem),
+//                                new FireOneShotCommand(intakeSubsystem)
+//                        ),
+//                        new ParallelCommandGroup(
+//                                new SequentialCommandGroup(
+//                                        new WaitCommand(500),
+//                                        new ClawCloseCommand(intakeSubsystem),
+//                                        //Retract for Transfer
+//                                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+//                                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
+//                                        new TurretSideTransferCommand(intakeSubsystem)
+//                                ),
+//                                new TransferBackwardCommand(transferSubsystem),
+//                                new SlidesStowCommand(slidesSubsystem)
+//                        )
+//                )
+//
+//        );
+//
+//        telemetry.addLine("A: extend/stow");
+//        telemetry.addLine("B: fire one-shot");
+//        telemetry.addLine("X: reset arm");
+//        telemetry.update();
     }
 }

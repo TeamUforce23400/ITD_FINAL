@@ -1,12 +1,16 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.ClawCloseCommand;
+import org.firstinspires.ftc.teamcode.commands.ClawLooseCommand;
 import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
 import org.firstinspires.ftc.teamcode.commands.FireOneShotCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeClawOpenCommand;
@@ -62,6 +66,20 @@ public class ServoPositionTest extends CommandOpMode {
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
                 new FireOneShotCommand(intakeSubsystem)
+        );
+
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+                new SequentialCommandGroup(
+                        new ClawCloseCommand(intakeSubsystem),
+                        //Retract for Transfer
+                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+
+                                new TurretResetTransferCommand(intakeSubsystem),
+                                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
+                                new WaitCommand(1000),
+                                new ClawLooseCommand(intakeSubsystem)
+
+                )
         );
 
 

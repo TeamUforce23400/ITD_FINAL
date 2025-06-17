@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -28,12 +29,12 @@ public class SlidesSubsystem extends SubsystemBase {
     private int stowedSlidesPosition = 0;
     private int backwardsTransferPosition = 0;
     private int lowChamberPosition = 150;
-    private int highChamberPosition = 950;
+    private int highChamberPosition = 400;
     private int specimendropPos = 190;
-    private int lowBasketPosition = 800;
-    private int highBasketPosition = 2700;
+    private int lowBasketPosition = 300;
+    private int highBasketPosition = 870;
 
-    private int level3 = 2300;
+    private int level3 = 870;
     private int hangpos = 1100;
 
     private int littleHang = 650;
@@ -57,8 +58,10 @@ public class SlidesSubsystem extends SubsystemBase {
 
     public static double kP = 0.01;
     public static double kI = 0.0;
-    public static double kD = 0.0002;
-    public static double kF = 0.00018;
+    public static double kD = 0.0;
+    public static double kF = 0.0001;
+
+    public static double targetPosition = 0;
 
     private static final PIDFController slidePIDF = new PIDFController(kP, kI, kD, kF);
 
