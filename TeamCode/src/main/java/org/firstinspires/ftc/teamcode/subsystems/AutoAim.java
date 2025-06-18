@@ -13,8 +13,8 @@ public final class AutoAim {
     public static double TURRET_POS_RANGE   = 0.24;      // servo range for full swing
     public static double TURRET_ANG_RANGE   = Math.toRadians(75);
 
-    public static double BASE_CLAW_YAW      = 0;
-    public static double CLAW_POS_RANGE     = 0.5;
+    public static double BASE_CLAW_YAW      = 0.5;
+    public static double CLAW_POS_RANGE     = -0.5;
     public static double CLAW_ANG_RANGE     = Math.toRadians(90);
 
     public static double BASE_EXT_POS       = 0.65;      // slides retracted servo pos

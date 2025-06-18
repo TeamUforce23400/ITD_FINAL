@@ -43,7 +43,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double TurretPositionLeft = 0.83;
     private double TurretPositionRight = 0.34;
 
-    private double intakePivotUpPosition = 0.2;
+    private double intakePivotUpPosition = 0.0;
     private double intakeIntakePos = 0.45;
     private double intakePivotDownPosition = 1.0;
 
@@ -365,12 +365,17 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeRightSlide.setPosition(intakeSlidesTransferPosition);
         intakeLeftSlide.setPosition(intakeSlidesTransferPosition);
     }
+
+    public void intakeSlidesFrontTransfer(){
+        intakeRightSlide.setPosition(intakeSlidesTransferPosition-0.1);
+        intakeLeftSlide.setPosition(intakeSlidesTransferPosition-0.1);
+    }
     public void intakePivotUp() {
         intakePivot.setPosition(intakePivotUpPosition);
     }
 
     public void intakePivotMid() {
-        intakePivot.setPosition(intakePivotUpPosition + 0.75);
+        intakePivot.setPosition(intakePivotUpPosition + 0.85);
     }
 
     public boolean IsIntakePivotedUp() {
@@ -386,11 +391,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakeClawClose(){
-        intakeClaw.setPosition(0.5);
+        intakeClaw.setPosition(0.47);
     }
 
     public void intakeClawLoose(){
-        intakeClaw.setPosition(0.47);
+        intakeClaw.setPosition(0.39);
     }
 
     public void colorNeutral(){

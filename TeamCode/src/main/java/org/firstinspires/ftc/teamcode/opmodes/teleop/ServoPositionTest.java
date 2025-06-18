@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import com.acmerobotics.dashboard.message.redux.ReceiveGamepadState;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
@@ -21,7 +23,14 @@ import org.firstinspires.ftc.teamcode.commands.IntakePivotUpCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesInCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
 import org.firstinspires.ftc.teamcode.commands.ResetArmForIntakeCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesSpecDrop;
+import org.firstinspires.ftc.teamcode.commands.TransferBackwardCommand;
+import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
+import org.firstinspires.ftc.teamcode.commands.TransferSpecPreDrop;
+import org.firstinspires.ftc.teamcode.commands.TransferSpecimenDropCommand;
+import org.firstinspires.ftc.teamcode.commands.TransferStowCommand;
 import org.firstinspires.ftc.teamcode.commands.TurretResetTransferCommand;
+import org.firstinspires.ftc.teamcode.subsystems.AscentSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
@@ -36,7 +45,10 @@ public class ServoPositionTest extends CommandOpMode {
     private TransferSubsystem   transferSubsystem;
 //    private SlidesSubsystem     slidesSubsystem;
     private RobotStateSubsystem robotState;
+    private AscentSubsystem ascent;
     private double driveSpeed = 1.0;
+
+
 
     private GamepadEx driver;
     private GamepadEx operator;
@@ -48,8 +60,10 @@ public class ServoPositionTest extends CommandOpMode {
         driver   = new GamepadEx(gamepad1);
         operator = new GamepadEx(gamepad2);
 
+        ascent = new AscentSubsystem(hardwareMap);
 
-        intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
+
+//        intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
         transferSubsystem = new TransferSubsystem(hardwareMap);
 //
 //        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
@@ -64,45 +78,61 @@ public class ServoPositionTest extends CommandOpMode {
 
         //Sample Intake
 
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
-                new FireOneShotCommand(intakeSubsystem)
-        );
+//        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
+//                new FireOneShotCommand(intakeSubsystem)
+//        );
+//
+//        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+//                new SequentialCommandGroup(
+//                        new ClawCloseCommand(intakeSubsystem),
+//                        //Retract for Transfer
+//                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+//
+//                                new TurretResetTransferCommand(intakeSubsystem),
+//                                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
+//                                new WaitCommand(1000),
+//                                new ClawLooseCommand(intakeSubsystem)
+//
+//                )
+//        );
+//
+//
+//
+//        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
+//                new ResetArmForIntakeCommand(intakeSubsystem)
+//        );
+//
+//        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
+//                new TurretResetTransferCommand(intakeSubsystem)
+//        );
+//
+//        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+//                new IntakePivotUpCommand(intakeSubsystem, robotState)
+//        );
+//
+//        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
+//                new IntakePivotUpCommand(intakeSubsystem, robotState)
+//        );
+//
+//        driver.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+//                new IntakePivotDownCommand(intakeSubsystem, robotState)
+//        );
+//
+//        ascent = new AscentSubsystem(hardwareMap);
+//        register(ascent);
 
-        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(
-                new SequentialCommandGroup(
-                        new ClawCloseCommand(intakeSubsystem),
-                        //Retract for Transfer
-                        new IntakePivotUpCommand(intakeSubsystem, robotState),
+        // Bind buttons (using FTCLib's Button helper)
 
-                                new TurretResetTransferCommand(intakeSubsystem),
-                                new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
-                                new WaitCommand(1000),
-                                new ClawLooseCommand(intakeSubsystem)
-
-                )
-        );
+        driver.getGamepadButton(GamepadKeys.Button.X)
+                .whenPressed(new TransferSpecPreDrop(transferSubsystem));
 
 
+        driver.getGamepadButton(GamepadKeys.Button.B)
+                .whenPressed(new TransferBackwardCommand(transferSubsystem));
 
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
-                new ResetArmForIntakeCommand(intakeSubsystem)
-        );
-
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
-                new TurretResetTransferCommand(intakeSubsystem)
-        );
-
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
-                new IntakePivotUpCommand(intakeSubsystem, robotState)
-        );
-
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
-                new IntakePivotUpCommand(intakeSubsystem, robotState)
-        );
-
-        driver.getGamepadButton(GamepadKeys.Button.X).whenPressed(
-                new IntakePivotDownCommand(intakeSubsystem, robotState)
-        );
+        driver.getGamepadButton(GamepadKeys.Button.Y)
+                .whenPressed(    ascent::moveBackward)
+                .whenReleased(   ascent::stop);
 
 
 

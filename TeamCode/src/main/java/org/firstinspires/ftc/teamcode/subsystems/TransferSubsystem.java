@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.commands.TransferSpecPreDrop;
+
 public class TransferSubsystem extends SubsystemBase {
 
     //Define motors and servos
@@ -16,31 +18,32 @@ public class TransferSubsystem extends SubsystemBase {
     private DigitalChannel magnetSensor;  // Digital channel Object
 
     // Define variables
-    private double backwardsTransferPosition = 0.9;
+    private double backwardsTransferPosition = 0.68;
     // private double stowedTransferPosition = 0;//higher number is out further from slides
-    private double stowedPosition = 0.0;
-    private double specimenDrop = 0.3;
-    private double flippedPosition = 0.6; //higher number is harder on the bar and padding
+    private double stowedPosition = 0.02;
+    private double specimenDrop = 0.2;
+    private double specimenpedrop = 0.08;
+    private double flippedPosition = 0.5; //higher number is harder on the bar and padding
     private double middleGripplerRotation = 0.5;
     private double leftGripplerRotation = 0;
     private double rightGripplerRotation = 1;
-    private double closedGripplerPosition = 0.6;
-    private double openGripplerPosition = 0;
+    private double closedGripplerPosition = 0.1;
+    private double openGripplerPosition = 0.56;
 
     public TransferSubsystem(final HardwareMap hMap) {
         armLeftServo = hMap.get(Servo.class, "opl");
         armRightServo = hMap.get(Servo.class, "opr");
         gripplerServo = hMap.get(Servo.class, "claw");
-//        magnetSensor = hMap.get(DigitalChannel.class, "magnet");
-//
-//        magnetSensor.setMode(DigitalChannel.Mode.INPUT);
+        magnetSensor = hMap.get(DigitalChannel.class, "magnet");
 
-//        armLeftServo.setDirection(Servo.Direction.FORWARD);
-//        armRightServo.setDirection(Servo.Direction.REVERSE);
-//        gripplerServo.setDirection(Servo.Direction.REVERSE);
-//        stowTransfer();
-////        griggleWristServo.setPosition(0.5);
-//        openGrippler();
+        magnetSensor.setMode(DigitalChannel.Mode.INPUT);
+
+        armLeftServo.setDirection(Servo.Direction.REVERSE);
+        armRightServo.setDirection(Servo.Direction.FORWARD);
+        gripplerServo.setDirection(Servo.Direction.REVERSE);
+        specimenPreDrop();
+//        griggleWristServo.setPosition(0.5);
+        openGrippler();
     }
 
     public void backwardsTransfer() {
@@ -51,6 +54,11 @@ public class TransferSubsystem extends SubsystemBase {
     public void specimenDrop() {
         armLeftServo.setPosition(specimenDrop);
         armRightServo.setPosition(specimenDrop);
+    }
+
+    public void specimenPreDrop() {
+        armLeftServo.setPosition(specimenpedrop);
+        armRightServo.setPosition(specimenpedrop);
     }
 
     public boolean IsTransferBackwards() {return true;}
@@ -69,9 +77,9 @@ public class TransferSubsystem extends SubsystemBase {
         armRightServo.setPosition(flippedPosition);
     }
 
-//    public boolean IsTransferClosed(){
-//        return !magnetSensor.getState();
-//    }
+    public boolean IsTransferClosed(){
+        return !magnetSensor.getState();
+    }
 
     public boolean IsTransferFlipped() {
         return true;
