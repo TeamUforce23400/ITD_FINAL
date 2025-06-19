@@ -57,8 +57,9 @@ public class RetractCommandGroup extends SequentialCommandGroup {
 
                 new WaitCommand(700),
                 new TurretResetTransferCommand(intakeSubsystem),
+                new WaitCommand(400),
                 new IntakeSlidesInTransferCommand(intakeSubsystem, transferSubsystem),
-                new ClawLooseCommand(intakeSubsystem),
+//                new ClawLooseCommand(intakeSubsystem),
                 new WaitCommand(200)
 
 //                new InstantCommand(()->intakeSubsystem.intakeSlidesFrontTransfer()),

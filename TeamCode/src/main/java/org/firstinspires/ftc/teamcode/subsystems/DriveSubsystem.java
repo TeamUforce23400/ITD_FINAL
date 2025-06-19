@@ -29,10 +29,11 @@ public class DriveSubsystem extends SubsystemBase {
         double strafe = Math.abs(leftX) > DEADZONE ? leftX * scale : 0;
         double rotate = Math.abs(rightX) > DEADZONE ? rightX * scale : 0;
 
-        double flPower = forward + strafe + rotate;
-        double frPower = forward - strafe - rotate;
-        double blPower = forward - strafe + rotate;
-        double brPower = forward + strafe - rotate;
+        double flPower = forward - strafe + rotate;
+        double frPower = forward + strafe - rotate;
+        double blPower = forward + strafe + rotate;
+        double brPower = forward - strafe - rotate;
+
 
         frontLeft.setPower(flPower);
         frontRight.setPower(frPower);

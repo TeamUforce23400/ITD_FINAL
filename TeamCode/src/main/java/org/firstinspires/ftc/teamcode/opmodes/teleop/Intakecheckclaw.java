@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import android.transition.Slide;
+
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.InstantCommand;
@@ -22,6 +24,8 @@ import org.firstinspires.ftc.teamcode.commands.FireOneShotCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeClawOpenCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeClawYawBaseCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeClawYawSecondCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeColorBlueCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakeColorBlueOrNeutralCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeColorNeutralCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeColorRedCommand;
 import org.firstinspires.ftc.teamcode.commands.IntakeColorRedOrNeutralCommand;
@@ -39,6 +43,7 @@ import org.firstinspires.ftc.teamcode.commands.IntakeResetCommand;
 import org.firstinspires.ftc.teamcode.commands.ResetArmForTransferCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesHighBasketCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesHighChamberCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesSpecDrop;
 import org.firstinspires.ftc.teamcode.commands.SlidesStowCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferBackwardCommand;
 import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
@@ -51,6 +56,7 @@ import org.firstinspires.ftc.teamcode.commands.TurretSideTransferCommand;
 import org.firstinspires.ftc.teamcode.commands.groups.RetractCommandGroup;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LimelightDetection;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
@@ -106,6 +112,7 @@ public class Intakecheckclaw extends CommandOpMode {
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
                 new SequentialCommandGroup(
+                        new IntakeColorBlueOrNeutralCommand(intakeSubsystem),
                         new FireOneShotCommand(intakeSubsystem)
 //                        new IntakePivotDownCommand(intakeSubsystem, robotState)
                 )
@@ -114,6 +121,7 @@ public class Intakecheckclaw extends CommandOpMode {
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
                 new SequentialCommandGroup(
+                        new IntakeColorBlueCommand(intakeSubsystem),
                         new FireOneShotCommand(intakeSubsystem)
 //                        new IntakePivotDownCommand(intakeSubsystem, robotState)
                 )
@@ -122,6 +130,7 @@ public class Intakecheckclaw extends CommandOpMode {
 
         operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN).whenPressed(
                 new SequentialCommandGroup(
+
                         new IntakePivotDownCommand(intakeSubsystem, robotState),
                         new WaitCommand(300),
                         new ClawCloseCommand(intakeSubsystem),
@@ -147,8 +156,8 @@ public class Intakecheckclaw extends CommandOpMode {
 
         operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
                 new SequentialCommandGroup(
-                        new IntakeSlidesOutCommand(intakeSubsystem),
-                        new IntakeClawOpenCommand(intakeSubsystem)
+                        new IntakeSlidesOutCommand(intakeSubsystem)
+
 
 //                                new ClawLooseCommand(intakeSubsystem),
                         //add outtake pick
@@ -163,6 +172,8 @@ public class Intakecheckclaw extends CommandOpMode {
                 )
         ).whenReleased(
                 new SequentialCommandGroup(
+                        new IntakeClawOpenCommand(intakeSubsystem),
+                        new WaitCommand(100),
                         new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem)
                 )
         );
@@ -170,17 +181,18 @@ public class Intakecheckclaw extends CommandOpMode {
 
         operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(
                 new SequentialCommandGroup(
+                        new InstantCommand(()->transferSubsystem.backwardsTransfer()),
                         new IntakePivotDownCommand(intakeSubsystem, robotState),
                         new WaitCommand(300),
                         new ClawCloseCommand(intakeSubsystem),
-                        new WaitCommand(600),
+                        new WaitCommand(700),
                         new TurretNormalResetCommand(intakeSubsystem),
                         new IntakePivotIntakePosCommand(intakeSubsystem, robotState),
                         new IntakePivotUpCommand(intakeSubsystem, robotState),
                         new WaitCommand(700),
 //                        new TurretResetTransferCommand(intakeSubsystem),
-                        new IntakeSlidesInTransferCommand(intakeSubsystem, transferSubsystem),
-                        new TurretSideTransferCommand(intakeSubsystem)
+                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem),
+                        new InstantCommand(()->intakeSubsystem.turretSideTransfer())
 //                                new ClawLooseCommand(intakeSubsystem),
                         //add outtake pick
 //                        new IntakeClawOpenCommand(intakeSubsystem),
@@ -192,6 +204,75 @@ public class Intakecheckclaw extends CommandOpMode {
 
 
                 ));
+
+        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
+                new SequentialCommandGroup(
+                        new InstantCommand(()->intakeSubsystem.IntakePivotPos()),
+                        new IntakeClawOpenCommand(intakeSubsystem),
+                        new TransferBackwardCommand(transferSubsystem),
+                        new WaitCommand(2000),
+                        new CloseGripplerCommand(transferSubsystem),
+                        new WaitCommand(300),
+                        new ParallelCommandGroup(
+                                new TransferSpecPreDrop(transferSubsystem),
+                                new SlidesSpecDrop(slidesSubsystem)
+                        )
+
+
+//                                new ClawLooseCommand(intakeSubsystem),
+                        //add outtake pick
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+
+//                                new ResetArmForTransferCommand(intakeSubsystem)
+
+
+                ));
+
+        operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
+                new SequentialCommandGroup(
+                                new TransferSpecimenDropCommand(transferSubsystem),
+
+                        new WaitCommand(300),
+                        new OpenGripplerCommand(transferSubsystem),
+                        new TransferBackwardCommand(transferSubsystem),
+                        new SlidesStowCommand(slidesSubsystem)
+//                        new WaitCommand(1000),
+//                        new InstantCommand(()->intakeSubsystem.fireOneShot())
+
+
+
+
+//                                new ClawLooseCommand(intakeSubsystem),
+                        //add outtake pick
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+
+//                                new ResetArmForTransferCommand(intakeSubsystem)
+
+
+                ));
+
+        operator.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+                new SequentialCommandGroup(
+                        new IntakePivotMid(intakeSubsystem, robotState)
+//                                new ClawLooseCommand(intakeSubsystem),
+                        //add outtake pick
+//                        new IntakeClawOpenCommand(intakeSubsystem),
+//                        new TurretNormalResetCommand(intakeSubsystem),
+//                        new WaitCommand(500),
+//                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+
+//                                new ResetArmForTransferCommand(intakeSubsystem)
+
+
+                ));
+
+
 
 //        driver.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
 //                new IntakePivotDownCommand(intakeSubsystem, robotState)
@@ -249,8 +330,8 @@ public class Intakecheckclaw extends CommandOpMode {
 //                                new TurretNormalResetCommand(intakeSubsystem),
 //                                new WaitCommand(500),
 //                                new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
-                                  new RetractCommandGroup(slidesSubsystem, transferSubsystem, robotState, intakeSubsystem),
-                        new InstantCommand(()->intakeSubsystem.intakeClawLoose())
+                                  new RetractCommandGroup(slidesSubsystem, transferSubsystem, robotState, intakeSubsystem)
+//                        new InstantCommand(()->intakeSubsystem.intakeClawLoose())
 
 
 
@@ -285,9 +366,35 @@ public class Intakecheckclaw extends CommandOpMode {
                 )
         );
 
+        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
+                new SequentialCommandGroup(
+                        new TransferSpecPreDrop(transferSubsystem),
+//                        new CloseGripplerCommand(transferSubsystem),
+                        //Transfer & Slides
+//                        new WaitCommand(200),
+                        new IntakeClawOpenCommand(intakeSubsystem),
+                        new InstantCommand(()-> intakeSubsystem.intakeSlidesFrontTransfer()),
+//                        new InstantCommand(()-> transferSubsystem.flipTransfer()),
+                        new TurretNormalResetCommand(intakeSubsystem),
+                        new WaitCommand(200),
+
+//                        new ParallelCommandGroup(
+//                                new InstantCommand(intakeSubsystem::IntakePivotPos),
+//                                new SlidesHighBasketCommand(slidesSubsystem)
+//
+//                        ),
+                        new InstantCommand(intakeSubsystem::IntakePivotPos),
+
+                        new IntakeSlidesInCommand(intakeSubsystem, transferSubsystem)
+
+
+                )
+        );
+
         driver.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER).whenPressed(
                 new SequentialCommandGroup(
                         new OpenGripplerCommand(transferSubsystem),
+                        new WaitCommand(300),
                         new ParallelCommandGroup(
                                 new TransferSpecPreDrop(transferSubsystem),
                                 new SlidesStowCommand(slidesSubsystem)
@@ -308,18 +415,18 @@ public class Intakecheckclaw extends CommandOpMode {
 
 
 
-//        //Add Color Choice Buttons
-////        driver.getGamepadButton(GamepadKeys.Button.DPAD_UP).whenPressed(
-////            new IntakeColorRedCommand(intakeSubsystem)
-////        );
-////
-////        driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(
-////                new IntakeColorRedOrNeutralCommand(intakeSubsystem)
-////        );
-////
-////        driver.getGamepadButton(GamepadKeys.Button.DPAD_LEFT).whenPressed(
-////                new IntakeColorNeutralCommand(intakeSubsystem)
-////        );
+        //Add Color Choice Buttons
+        driver.getGamepadButton(GamepadKeys.Button.X).whenPressed(
+            new IntakeColorRedCommand(intakeSubsystem)
+        );
+
+        driver.getGamepadButton(GamepadKeys.Button.B).whenPressed(
+                new IntakeColorRedOrNeutralCommand(intakeSubsystem)
+        );
+
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
+                new IntakeColorNeutralCommand(intakeSubsystem)
+        );
 //
 //
 //        //Drop, Reset Slides & Stow command add

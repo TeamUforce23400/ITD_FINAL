@@ -34,9 +34,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private RevColorSensorV3 colourSensor;
 
     // Define variables
-    private double intakeSlidesInPosition = 0.65;
+    private double intakeSlidesInPosition = 0.655;
 
-    private double intakeSlidesTransferPosition = 0.52;
+    private double intakeSlidesTransferPosition = 0.57;
 
     private double intakeSlidesOutPosition = 0.1;
 
@@ -55,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
     //0.59
     private double turretSide = 0.28;
 
-    private double turretTransfer = 0.017;
+    private double turretTransfer = 0.032;
 
     public static final double TURRET_LEFT_LIMIT  = 0.83;
     public static final double TURRET_RIGHT_LIMIT = 0.34;
@@ -160,6 +160,7 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public void fireOneShot() {
         if (lastTarget != null) {
+
             telemetry.addLine("fireOneShot: aiming & pivot-down");
             telemetry.addData("lastTarget", "(%.2f, %.2f)", lastTarget.x, lastTarget.y);
             telemetry.addData("lastYaw", "%.4f", lastYaw);
@@ -375,7 +376,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakePivotMid() {
-        intakePivot.setPosition(intakePivotUpPosition + 0.85);
+        intakePivot.setPosition(intakePivotUpPosition + 0.87);
     }
 
     public boolean IsIntakePivotedUp() {
@@ -391,7 +392,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakeClawClose(){
-        intakeClaw.setPosition(0.47);
+        intakeClaw.setPosition(0.415);
     }
 
     public void intakeClawLoose(){
@@ -405,7 +406,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void colorBlue(){
         LimelightDetection.mode = 1;
-        LimelightDetection.secondMode = -1;
+        LimelightDetection.secondMode = 1;
     }
 
     public void colorRed(){
