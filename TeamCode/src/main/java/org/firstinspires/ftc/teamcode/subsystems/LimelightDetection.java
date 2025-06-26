@@ -71,7 +71,7 @@ public class LimelightDetection {
     }
 
     public boolean isWithinRange(double tx, double ty) {
-        return ty < 15 && ty > -10 && Math.abs(tx) <= 18;
+        return ty < 15 && ty > -10 && Math.abs(tx) <= 17;
     }
 
     public boolean isCloser(double tx, double ty, double minTx, double minTy) {
@@ -89,16 +89,16 @@ public class LimelightDetection {
 
         // 2) List all detected blobs BEFORE filtering
         List<LLResultTypes.DetectorResult> detectedTargets = result.getDetectorResults();
-        telemetry.addData("Detected blobs (count)", detectedTargets.size());
+//       O>P/
         for (int i = 0; i < detectedTargets.size(); i++) {
             LLResultTypes.DetectorResult t = detectedTargets.get(i);
             double tx = t.getTargetXDegrees();
             double ty = t.getTargetYDegrees();
             int cID = t.getClassId();
-            telemetry.addData(
-                    String.format("Blob %d (class, tx, ty)", i),
-                    String.format("(%d, %.2f, %.2f)", cID, tx, ty)
-            );
+//            telemetry.addData(
+//                    String.format("Blob %d (class, tx, ty)", i),
+//                    String.format("(%d, %.2f, %.2f)", cID, tx, ty)
+//            );
         }
 
         // 3) Filtering logic
@@ -114,18 +114,18 @@ public class LimelightDetection {
 
             boolean goodColor   = isGoodColor(target);
             boolean withinRange = isWithinRange(tx, ty);
-            telemetry.addData(
-                    String.format("Blob %d checks", i),
-                    String.format("colorOK=%b, rangeOK=%b", goodColor, withinRange)
-            );
+//            telemetry.addData(
+//                    String.format("Blob %d checks", i),
+//                    String.format("colorOK=%b, rangeOK=%b", goodColor, withinRange)
+//            );
 
             if (goodColor && withinRange) {
                 boolean closer = isCloser(tx, ty, minTx, minTy);
-                telemetry.addData(
-                        String.format("→ isCloser check for blob %d", i),
-                        String.format("ty(%.2f) < minTy(%.2f)? %b ; or equal-ty & tx(%.2f) < minTx(%.2f)? %b",
-                                ty, minTy, (ty < minTy), tx, minTx, (minTy == ty && tx < minTx))
-                );
+//                telemetry.addData(
+//                        String.format("→ isCloser check for blob %d", i),
+//                        String.format("ty(%.2f) < minTy(%.2f)? %b ; or equal-ty & tx(%.2f) < minTx(%.2f)? %b",
+//                                ty, minTy, (ty < minTy), tx, minTx, (minTy == ty && tx < minTx))
+//                );
                 if (closer) {
                     minTx = Math.abs(tx);
                     minTy = ty;
@@ -138,24 +138,25 @@ public class LimelightDetection {
                     telemetry.addData("→ Chosen (tx, ty)", String.format("(%.2f, %.2f)", tx, ty));
                     telemetry.addData("→ hAngle (rad)", String.format("%.4f", horizontalAngle));
                     telemetry.addData("→ vAngle (rad)", String.format("%.4f", verticalAngle));
+                    telemetry.update();
                 }
             }
         }
 
         // 4) After loop
-        telemetry.addData("After loop: resultExists", resultExists);
-        telemetry.addData("After loop: targetIndex", targetIndex);
+//        telemetry.addData("After loop: resultExists", resultExists);
+//        telemetry.addData("After loop: targetIndex", targetIndex);
 
         // 5) Corners
         if (resultExists) {
             vertices = detectedTargets.get(targetIndex).getTargetCorners();
-            telemetry.addData("Corners count", vertices.size());
+//            telemetry.addData("Corners count", vertices.size());
             for (int i = 0; i < vertices.size() && i < points.length; i++) {
                 points[i] = new Point(vertices.get(i).get(0), vertices.get(i).get(1));
-                telemetry.addData(
-                        String.format("Corner %d (px, py)", i),
-                        String.format("(%.1f, %.1f)", points[i].x, points[i].y)
-                );
+//                telemetry.addData(
+//                        String.format("Corner %d (px, py)", i),
+//                        String.format("(%.1f, %.1f)", points[i].x, points[i].y)
+//                );
             }
             telemetry.update();
         }
@@ -169,7 +170,7 @@ public class LimelightDetection {
         if (p1.x == p2.x) {
             d *= 1.8; // fudge
         }
-        telemetry.addData("euclidDist", String.format("dx=%.1f, dy=%.1f, d=%.1f", dx, dy, d));
+//        telemetry.addData("euclidDist", String.format("dx=%.1f, dy=%.1f, d=%.1f", dx, dy, d));
         return d;
     }
 
@@ -201,15 +202,15 @@ public class LimelightDetection {
     public void getYaw() {
         double length = euclideanDist(points[0], points[1]);
         double width  = euclideanDist(points[1], points[2]);
-        telemetry.addData("length vs width", String.format("%.1f vs %.1f", length, width));
+//        telemetry.addData("length vs width", String.format("%.1f vs %.1f", length, width));
 
         if (length > width) {
             sampleYaw = Math.PI / 2;
         } else {
             sampleYaw = 0;
         }
-        telemetry.addData("sampleYaw (rad)", String.format("%.4f", sampleYaw));
-        telemetry.update();
+//        telemetry.addData("sampleYaw (rad)", String.format("%.4f", sampleYaw));
+//        telemetry.update();
     }
 
     public void runDetection() {

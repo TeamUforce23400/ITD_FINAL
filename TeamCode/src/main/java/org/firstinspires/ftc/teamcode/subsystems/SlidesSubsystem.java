@@ -26,11 +26,11 @@ public class SlidesSubsystem extends SubsystemBase {
     private DcMotorEx verticalSlideMotor2;
 
     // Define variables
-    private int stowedSlidesPosition = 0;
+    private int stowedSlidesPosition = 25;
     private int backwardsTransferPosition = 0;
     private int lowChamberPosition = 150;
     private int highChamberPosition = 400;
-    private int specimendropPos = 115;
+    private int specimendropPos = 112;
     private int lowBasketPosition = 300;
     private int highBasketPosition = 870;
 

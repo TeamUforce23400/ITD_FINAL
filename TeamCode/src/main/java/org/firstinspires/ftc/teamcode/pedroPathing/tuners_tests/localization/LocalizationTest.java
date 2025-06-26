@@ -1,4 +1,4 @@
-package pedroPathing.tuners_tests.localization;
+package org.firstinspires.ftc.teamcode.pedroPathing.tuners_tests.localization;
 
 import static com.pedropathing.follower.FollowerConstants.leftFrontMotorName;
 import static com.pedropathing.follower.FollowerConstants.leftRearMotorName;
@@ -56,7 +56,7 @@ public class LocalizationTest extends OpMode {
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
-        poseUpdater = new PoseUpdater(hardwareMap, FConstants.class, LConstants.class);
+        poseUpdater = new PoseUpdater(hardwareMap);
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
 
@@ -64,10 +64,17 @@ public class LocalizationTest extends OpMode {
         leftRear = hardwareMap.get(DcMotorEx.class, leftRearMotorName);
         rightRear = hardwareMap.get(DcMotorEx.class, rightRearMotorName);
         rightFront = hardwareMap.get(DcMotorEx.class, rightFrontMotorName);
-        leftFront.setDirection(leftFrontMotorDirection);
-        leftRear.setDirection(leftRearMotorDirection);
-        rightFront.setDirection(rightFrontMotorDirection);
-        rightRear.setDirection(rightRearMotorDirection);
+
+//        leftFront  .setDirection(DcMotorEx.Direction.FORWARD);   // was REVERSE
+//        leftRear   .setDirection(DcMotorEx.Direction.REVERSE);  // keep REVERSE
+//        rightFront .setDirection(DcMotorEx.Direction.FORWARD);  // keep FORWARD
+//        rightRear  .setDirection(DcMotorEx.Direction.REVERSE);  // was FORWARD
+
+
+        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        rightFront.setDirection(DcMotorEx.Direction.FORWARD);
+        rightRear.setDirection(DcMotorEx.Direction.FORWARD);
 
         motors = Arrays.asList(leftFront, leftRear, rightFront, rightRear);
 
@@ -100,7 +107,7 @@ public class LocalizationTest extends OpMode {
         dashboardPoseTracker.update();
 
         double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.left_stick_x; // this is strafing
+        double x = -gamepad1.left_stick_x; // this is strafing
         double rx = gamepad1.right_stick_x;
 
         // Denominator is the largest motor power (absolute value) or 1

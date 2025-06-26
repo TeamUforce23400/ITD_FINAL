@@ -7,7 +7,7 @@ import org.opencv.core.Point3;
 public final class AutoAim {
 
     // ─── Tuning Parameters ───────────────────────────────────────────────
-    public static double ARM_LENGTH_CM      = 2.4;
+    public static double ARM_LENGTH_CM      = 1.8;
 
     public static double BASE_TURRET_POS    = 0.59;
     public static double TURRET_POS_RANGE   = 0.24;

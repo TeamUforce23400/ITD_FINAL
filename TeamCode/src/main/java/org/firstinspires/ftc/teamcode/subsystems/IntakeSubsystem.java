@@ -34,18 +34,18 @@ public class IntakeSubsystem extends SubsystemBase {
     private RevColorSensorV3 colourSensor;
 
     // Define variables
-    private double intakeSlidesInPosition = 0.655;
+    private double intakeSlidesInPosition = 0.64;
 
-    private double intakeSlidesTransferPosition = 0.57;
+    private double intakeSlidesTransferPosition = 0.565;
 
-    private double intakeSlidesOutPosition = 0.1;
+    private double intakeSlidesOutPosition = 0.03;
 
     private double TurretPositionLeft = 0.83;
     private double TurretPositionRight = 0.34;
 
-    private double intakePivotUpPosition = 0.0;
+    private double intakePivotUpPosition = 0.15;
     private double intakeIntakePos = 0.45;
-    private double intakePivotDownPosition = 1.0;
+    private double intakePivotDownPosition = 0.76;
 
     private double intakePoopOpen = 0.85;
 
@@ -55,7 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
     //0.59
     private double turretSide = 0.28;
 
-    private double turretTransfer = 0.032;
+    private double turretTransfer = 0.023;
 
     public static final double TURRET_LEFT_LIMIT  = 0.83;
     public static final double TURRET_RIGHT_LIMIT = 0.34;
@@ -376,7 +376,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakePivotMid() {
-        intakePivot.setPosition(intakePivotUpPosition + 0.87);
+        intakePivot.setPosition(intakePivotUpPosition + 0.545);
     }
 
     public boolean IsIntakePivotedUp() {
@@ -392,7 +392,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakeClawClose(){
-        intakeClaw.setPosition(0.415);
+        intakeClaw.setPosition(0.401);
     }
 
     public void intakeClawLoose(){

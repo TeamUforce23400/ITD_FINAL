@@ -45,9 +45,9 @@ public class RetractCommandGroup extends SequentialCommandGroup {
 
         addCommands(
                 new TransferStowCommand(transferSubsystem),
-                new IntakePivotDownCommand(intakeSubsystem, robotState),
-                new WaitCommand(300),
-                new ClawCloseCommand(intakeSubsystem),
+//                new IntakePivotDownCommand(intakeSubsystem, robotState),
+//                new WaitCommand(300),
+//                new ClawCloseCommand(intakeSubsystem),
 
                 new IntakePivotIntakePosCommand(intakeSubsystem, robotState),
                 new IntakePivotUpCommand(intakeSubsystem, robotState),
@@ -55,7 +55,7 @@ public class RetractCommandGroup extends SequentialCommandGroup {
                 new TurretNormalResetCommand(intakeSubsystem),
                 new IntakeClawYawBaseCommand(intakeSubsystem),
 
-                new WaitCommand(700),
+                new WaitCommand(400),
                 new TurretResetTransferCommand(intakeSubsystem),
                 new WaitCommand(400),
                 new IntakeSlidesInTransferCommand(intakeSubsystem, transferSubsystem),

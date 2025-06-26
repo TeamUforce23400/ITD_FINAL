@@ -18,16 +18,16 @@ public class TransferSubsystem extends SubsystemBase {
     private DigitalChannel magnetSensor;  // Digital channel Object
 
     // Define variables
-    private double backwardsTransferPosition = 0.65;
+    private double backwardsTransferPosition = 0.78;
     // private double stowedTransferPosition = 0;//higher number is out further from slides
-    private double stowedPosition = 0.06;
-    private double specimenDrop = 0.35;
-    private double specimenpedrop = 0.15;
-    private double flippedPosition = 0.43; //higher number is harder on the bar and padding
+    private double stowedPosition = 0.14;
+    private double specimenDrop = 0.45;
+    private double specimenpedrop = 0.28;
+    private double flippedPosition = 0.53; //higher number is harder on the bar and padding
     private double middleGripplerRotation = 0.5;
     private double leftGripplerRotation = 0;
     private double rightGripplerRotation = 1;
-    private double closedGripplerPosition = 0.1;
+    private double closedGripplerPosition = 0.07;
     private double openGripplerPosition = 0.56;
 
     public TransferSubsystem(final HardwareMap hMap) {

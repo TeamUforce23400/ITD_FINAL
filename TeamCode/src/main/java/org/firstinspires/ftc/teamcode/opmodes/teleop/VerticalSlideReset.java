@@ -24,6 +24,7 @@ public class VerticalSlideReset extends CommandOpMode {
         telemetry.addData("SLIDES", "RESET COMPLETE");
         telemetry.update();
 
+
     }
 }
 
