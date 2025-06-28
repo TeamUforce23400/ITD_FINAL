@@ -13,8 +13,15 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.commands.DefaultDrive;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.subsystems.AscentSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 //import Controllers.ExtendoController;
 //import Controllers.LiftsController;
 //import SubSystems.Intake;
@@ -24,6 +31,15 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
 @Autonomous(name="BlueBasket", group="Autonomous")
 public class BlueBasket extends OpMode {
+
+    private DriveSubsystem m_drive1;
+    private DriveSubsystem m_drive2;
+    private DefaultDrive m_driveCommand;
+    private DefaultDrive m_driveCommand2;
+    private IntakeSubsystem intakeSubsystem;
+    private TransferSubsystem transferSubsystem;
+    private SlidesSubsystem slidesSubsystem;
+    private RobotStateSubsystem robotState;
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
     private boolean poseSet = false;
@@ -43,10 +59,10 @@ public class BlueBasket extends OpMode {
                         new BezierCurve(
                                 new Point(7.722, 95, Point.CARTESIAN),
                                 new Point(17.209, 93, Point.CARTESIAN),
-                                new Point(4, 83, Point.CARTESIAN)
+                                new Point(2, 78, Point.CARTESIAN)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-20))
                 .build();
 
         path2 = follower.pathBuilder()
@@ -125,6 +141,8 @@ public class BlueBasket extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
+                slidesSubsystem.highBasket();
+                transferSubsystem.flipTransfer();
                 follower.followPath(path1, true);
 //                outtake.setScoreState();
 //                lifts.setTarget(LiftsController.HIGHEST_BASKET);
@@ -293,6 +311,14 @@ public class BlueBasket extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
+
+
+        intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
+        transferSubsystem = new TransferSubsystem(hardwareMap);
+
+        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
+        robotState = new RobotStateSubsystem();
+
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
@@ -300,6 +326,7 @@ public class BlueBasket extends OpMode {
 //        intakeMotor = new ExtendoController(hardwareMap);
 //        outtake = new Outtake(hardwareMap, lifts);
 //        intake = new Intake(hardwareMap, intakeMotor, lifts, outtake);
+        transferSubsystem.closeGrippler();
         buildPaths();
     }
 

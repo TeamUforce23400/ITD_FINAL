@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
@@ -11,16 +13,30 @@ import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.commands.ClawCloseCommand;
 import org.firstinspires.ftc.teamcode.commands.FollowPathCommand;
+import org.firstinspires.ftc.teamcode.commands.IntakePivotMid;
+import org.firstinspires.ftc.teamcode.commands.IntakeSlidesOutCommand;
+import org.firstinspires.ftc.teamcode.commands.OpenGripplerCommand;
 import org.firstinspires.ftc.teamcode.commands.SlidesHighBasketCommand;
+import org.firstinspires.ftc.teamcode.commands.SlidesStowCommand;
+import org.firstinspires.ftc.teamcode.commands.TransferFlipCommand;
+import org.firstinspires.ftc.teamcode.commands.TransferStowCommand;
+import org.firstinspires.ftc.teamcode.commands.groups.RetractCommandGroup;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 
 @Autonomous
 public class Pedro4Sample extends CommandOpMode {
     Follower f;
     SlidesSubsystem slides;
+    private IntakeSubsystem intakeSubsystem;
+    private TransferSubsystem transferSubsystem;
+    private RobotStateSubsystem robotState;
 
     public static PathBuilder builder = new PathBuilder();
 
@@ -100,20 +116,52 @@ public class Pedro4Sample extends CommandOpMode {
         f.setStartingPose(new Pose(7.55, 112.450, 0));
 
         slides = new SlidesSubsystem(hardwareMap, telemetry);
+        intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
+        transferSubsystem = new TransferSubsystem(hardwareMap);
+        robotState = new RobotStateSubsystem();
+
+
         register(slides);
+        register(intakeSubsystem);
+        register(transferSubsystem);
+        register(robotState);
+        transferSubsystem.closeGrippler();
 
 
         schedule(
                 new FollowPathCommand(f, line1, false)
                         .alongWith(
-                                new SlidesHighBasketCommand(slides)
+                                new SlidesHighBasketCommand(slides),
+                                new TransferFlipCommand(transferSubsystem),
+                                new ParallelCommandGroup(
+                                        new IntakeSlidesOutCommand(intakeSubsystem),
+                                        new IntakePivotMid(intakeSubsystem, robotState)
+                                )
                         ),
-                new FollowPathCommand(f, line2, false),
-                new FollowPathCommand(f, line3, false),
-                new FollowPathCommand(f, line4, false),
-                new FollowPathCommand(f, line5, false),
-                new FollowPathCommand(f, line6, false),
-                new FollowPathCommand(f, line7, false)
+                new OpenGripplerCommand(transferSubsystem),
+                new ParallelCommandGroup(
+                        new TransferStowCommand(transferSubsystem),
+                        new WaitCommand(200),
+                        new SlidesStowCommand(slides)
+                ),
+                new ClawCloseCommand(intakeSubsystem),
+                new RetractCommandGroup(slides, transferSubsystem, robotState, intakeSubsystem)
+
+//                new FollowPathCommand(f, line2, false),
+//                new FollowPathCommand(f, line3, false),
+//                new FollowPathCommand(f, line4, false),
+//                new FollowPathCommand(f, line5, false),
+//                new FollowPathCommand(f, line6, false),
+//                new FollowPathCommand(f, line7, false)
         );
+
+
+    }
+    @Override
+    public void loop(){
+        super.loop();
+        f.update();
     }
 }
+
+
