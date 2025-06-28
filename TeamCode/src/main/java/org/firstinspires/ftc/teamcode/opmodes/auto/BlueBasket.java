@@ -12,6 +12,7 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+//import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 //import Controllers.ExtendoController;
@@ -40,9 +41,9 @@ public class BlueBasket extends OpMode {
         path1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Point(7.722, -103.304, Point.CARTESIAN),
-                                new Point(24.209, -108.313, Point.CARTESIAN),
-                                new Point(7, 125.635, Point.CARTESIAN)
+                                new Point(7.722, 103.304, Point.CARTESIAN),
+                                new Point(24.209, 95.313, Point.CARTESIAN),
+                                new Point(7, 90, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
@@ -293,7 +294,7 @@ public class BlueBasket extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 //        lifts = new LiftsController(hardwareMap);
 //        intakeMotor = new ExtendoController(hardwareMap);
