@@ -32,7 +32,7 @@ public class BlueBasket extends OpMode {
 //    private Outtake outtake;
     private boolean clips = false;
     private PathChain path1, path2, path3, path4, path5, path6, path7, path8;
-    private final Pose startPose = new Pose(7.722, 103.304, 0);
+    private final Pose startPose = new Pose(7.722, 95, 0);
 //    private Intake intake;
 //    private ExtendoController intakeMotor;
     private ElapsedTime timer = new ElapsedTime();
@@ -41,9 +41,9 @@ public class BlueBasket extends OpMode {
         path1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Point(7.722, 103.304, Point.CARTESIAN),
-                                new Point(24.209, 95.313, Point.CARTESIAN),
-                                new Point(7, 90, Point.CARTESIAN)
+                                new Point(7.722, 95, Point.CARTESIAN),
+                                new Point(17.209, 93, Point.CARTESIAN),
+                                new Point(4, 83, Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
