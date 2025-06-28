@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.commands.TransferStowCommand;
 import org.firstinspires.ftc.teamcode.commands.groups.RetractCommandGroup;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+import org.firstinspires.ftc.teamcode.subsystems.FollowerSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.RobotStateSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
@@ -34,9 +35,12 @@ import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 public class Pedro4Sample extends CommandOpMode {
     Follower f;
     SlidesSubsystem slides;
-    private IntakeSubsystem intakeSubsystem;
-    private TransferSubsystem transferSubsystem;
-    private RobotStateSubsystem robotState;
+    IntakeSubsystem intakeSubsystem;
+    TransferSubsystem transferSubsystem;
+    RobotStateSubsystem robotState;
+
+    FollowerSubsystem followerSubsystem;
+
 
     public static PathBuilder builder = new PathBuilder();
 
@@ -119,12 +123,14 @@ public class Pedro4Sample extends CommandOpMode {
         intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
         transferSubsystem = new TransferSubsystem(hardwareMap);
         robotState = new RobotStateSubsystem();
+        followerSubsystem = new FollowerSubsystem(hardwareMap, FConstants.class, LConstants.class, new Pose(7.55, 112.450, 0));
 
 
         register(slides);
         register(intakeSubsystem);
         register(transferSubsystem);
         register(robotState);
+        register(followerSubsystem);
         transferSubsystem.closeGrippler();
 
 
@@ -156,11 +162,6 @@ public class Pedro4Sample extends CommandOpMode {
         );
 
 
-    }
-    @Override
-    public void loop(){
-        super.loop();
-        f.update();
     }
 }
 
