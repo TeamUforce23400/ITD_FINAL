@@ -45,9 +45,15 @@ public class FollowerSubsystem extends SubsystemBase {
         return follower.getPose();
     }
 
-    @Override
-    public void periodic() {
-        // Called once per scheduler run to update odometry and control
-        follower.update();
+    public Follower getFollower(){
+        return follower;
     }
+
+//    @Override
+//    public void periodic() {
+//        // Called once per scheduler run to update odometry and control
+//        follower.update();
+//    }
+
+
 }

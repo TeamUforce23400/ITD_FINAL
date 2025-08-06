@@ -56,10 +56,9 @@ public class BlueBasket extends OpMode {
     public void buildPaths() {
         path1 = follower.pathBuilder()
                 .addPath(
-                        new BezierCurve(
-                                new Point(7.722, 95, Point.CARTESIAN),
-                                new Point(17.209, 93, Point.CARTESIAN),
-                                new Point(2, 78, Point.CARTESIAN)
+                        new BezierLine(
+                                new Point(7.772, 95, Point.CARTESIAN),
+                                new Point(7.772, 103 , Point.CARTESIAN)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-20))
@@ -141,8 +140,8 @@ public class BlueBasket extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
-                slidesSubsystem.highBasket();
-                transferSubsystem.flipTransfer();
+//                slidesSubsystem.highBasket();
+//                transferSubsystem.flipTransfer();
                 follower.followPath(path1, true);
 //                outtake.setScoreState();
 //                lifts.setTarget(LiftsController.HIGHEST_BASKET);
@@ -312,12 +311,12 @@ public class BlueBasket extends OpMode {
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-
-        intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
-        transferSubsystem = new TransferSubsystem(hardwareMap);
-
-        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
-        robotState = new RobotStateSubsystem();
+//
+//        intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
+//        transferSubsystem = new TransferSubsystem(hardwareMap);
+//
+//        slidesSubsystem = new SlidesSubsystem(hardwareMap, telemetry);
+//        robotState = new RobotStateSubsystem();
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
@@ -326,7 +325,7 @@ public class BlueBasket extends OpMode {
 //        intakeMotor = new ExtendoController(hardwareMap);
 //        outtake = new Outtake(hardwareMap, lifts);
 //        intake = new Intake(hardwareMap, intakeMotor, lifts, outtake);
-        transferSubsystem.closeGrippler();
+//        transferSubsystem.closeGrippler();
         buildPaths();
     }
 

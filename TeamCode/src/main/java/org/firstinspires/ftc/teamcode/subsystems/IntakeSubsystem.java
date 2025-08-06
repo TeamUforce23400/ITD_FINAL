@@ -34,11 +34,12 @@ public class IntakeSubsystem extends SubsystemBase {
     private RevColorSensorV3 colourSensor;
 
     // Define variables
+    private double intakeSlidesInitPosition = 0.67;
     private double intakeSlidesInPosition = 0.64;
 
     private double intakeSlidesTransferPosition = 0.565;
 
-    private double intakeSlidesOutPosition = 0.03;
+    private double intakeSlidesOutPosition = 0.04;
 
     private double TurretPositionLeft = 0.83;
     private double TurretPositionRight = 0.34;
@@ -131,7 +132,8 @@ public class IntakeSubsystem extends SubsystemBase {
         LimelightDetection.secondMode = -1;
         resetArmForIntake();
         AutoAim.resetLastPositions();
-        intakeSlidesIn();
+        intakeSlidesInit();
+        intakePivotUp();
 
     }
 
@@ -247,6 +249,12 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeRightSlide.setPosition(intakeSlidesInPosition);
     }
 
+    public void intakeSlidesInit() {
+        //Brings the slides in
+        intakeLeftSlide.setPosition(intakeSlidesInitPosition);
+        intakeRightSlide.setPosition(intakeSlidesInitPosition);
+    }
+
     public void IncrSlides(){
         double currentPos = getIntakeSlidePosition();
         //slides must be decremented
@@ -357,6 +365,9 @@ public class IntakeSubsystem extends SubsystemBase {
     public void intakeClawYawBase(){
         clawYawServo.setPosition(0.5);
     }
+    public void intakeClawMidBase(){
+        clawYawServo.setPosition(0.3);
+    }
 
     public void intakeClawYawSecond(){
         clawYawServo.setPosition(0);
@@ -376,7 +387,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakePivotMid() {
-        intakePivot.setPosition(intakePivotUpPosition + 0.545);
+        intakePivot.setPosition(intakePivotUpPosition + 0.50);
     }
 
     public boolean IsIntakePivotedUp() {
@@ -392,7 +403,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void intakeClawClose(){
-        intakeClaw.setPosition(0.401);
+        intakeClaw.setPosition(0.36);
     }
 
     public void intakeClawLoose(){

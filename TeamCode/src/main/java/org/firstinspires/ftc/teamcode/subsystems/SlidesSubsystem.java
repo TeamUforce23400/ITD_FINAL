@@ -30,7 +30,8 @@ public class SlidesSubsystem extends SubsystemBase {
     private int backwardsTransferPosition = 0;
     private int lowChamberPosition = 150;
     private int highChamberPosition = 400;
-    private int specimendropPos = 112;
+    // private int specimendropPos = 112;
+    private int specimendropPos = 70;
     private int lowBasketPosition = 300;
     private int highBasketPosition = 870;
 
@@ -260,7 +261,7 @@ public class SlidesSubsystem extends SubsystemBase {
         return verticalSlideMotor1.getCurrentPosition() > (highBasketPosition - 50);
     }
 
-    public void setSlideTarget(double target) {
+    public void  setSlideTarget(double target) {
         this.target = Math.max(Math.min(target, highBasketPosition), 0);
         slidePIDF.setSetPoint(target);
     }

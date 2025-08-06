@@ -31,14 +31,14 @@ import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 public class RetractCommandGroup extends SequentialCommandGroup {
 
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final SlidesSubsystem slidesSubsystem;
+//    private final SlidesSubsystem slidesSubsystem;
     private final TransferSubsystem transferSubsystem;
 
     private final RobotStateSubsystem robotState;
     private final IntakeSubsystem intakeSubsystem;
 
-    public RetractCommandGroup(SlidesSubsystem Islides, TransferSubsystem Itransfer, RobotStateSubsystem state, IntakeSubsystem intake ) {
-        slidesSubsystem = Islides;
+    public RetractCommandGroup( TransferSubsystem Itransfer, RobotStateSubsystem state, IntakeSubsystem intake ) {
+//        slidesSubsystem = Islides;
         transferSubsystem = Itransfer;
         robotState = state;
         intakeSubsystem = intake;
@@ -69,7 +69,7 @@ public class RetractCommandGroup extends SequentialCommandGroup {
         );
 
 
-        addRequirements(Islides);
+//        addRequirements(Islides);
         addRequirements(Itransfer);
         addRequirements(intake);
 

@@ -103,6 +103,8 @@ public class Intakecheckclaw extends CommandOpMode {
         m_drive1 = new DriveSubsystem(hardwareMap, telemetry);
         register(m_drive1);
 
+        transferSubsystem.specimenPreDrop();
+
 // Use RunCommand to merge both gamepads
         m_drive1.setDefaultCommand(new RunCommand(() -> {
             double leftY = stronger(driver.getLeftY(), operator.getLeftY());
@@ -225,10 +227,29 @@ public class Intakecheckclaw extends CommandOpMode {
                 )
         );
 
-        operator.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(
-                new SequentialCommandGroup(
+//        operator.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON).whenPressed(
+//                new SequentialCommandGroup(
+//
+//                       new SlidesHighBasketCommand(slidesSubsystem)
+////                                new ClawLooseCommand(intakeSubsystem),
+//                        //add outtake pick
+////                        new IntakeClawOpenCommand(intakeSubsystem),
+////                        new TurretNormalResetCommand(intakeSubsystem),
+////                        new WaitCommand(500),
+////                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+//
+////                                new ResetArmForTransferCommand(intakeSubsystem)
+//
+//
+//                )
+//        );
 
-                       new IntakeClawOpenCommand(intakeSubsystem)
+//        operator.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON).whenPressed(
+//                new SequentialCommandGroup(
+//
+//                        new SlidesHighBasketCommand(slidesSubsystem),
+//                        new WaitCommand(500),
+//                        new InstantCommand(slidesSubsystem::NoPowerSlides)
 //                                new ClawLooseCommand(intakeSubsystem),
                         //add outtake pick
 //                        new IntakeClawOpenCommand(intakeSubsystem),
@@ -239,8 +260,8 @@ public class Intakecheckclaw extends CommandOpMode {
 //                                new ResetArmForTransferCommand(intakeSubsystem)
 
 
-                )
-        );
+//                )
+//        );
 
         operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER).whenPressed(
                 new SequentialCommandGroup(
@@ -319,31 +340,31 @@ public class Intakecheckclaw extends CommandOpMode {
 
                 ));
 
-        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(
-                new SequentialCommandGroup(
-
-
-//                        new WaitCommand(300),
-                        new OpenGripplerCommand(transferSubsystem),
-                        new TransferBackwardCommand(transferSubsystem),
-                        new SlidesBackwardsTransferCommand(slidesSubsystem)
-//                        new WaitCommand(1000),
-//                        new InstantCommand(()->intakeSubsystem.fireOneShot())
-
-
-
-
-//                                new ClawLooseCommand(intakeSubsystem),
-                        //add outtake pick
-//                        new IntakeClawOpenCommand(intakeSubsystem),
-//                        new TurretNormalResetCommand(intakeSubsystem),
-//                        new WaitCommand(500),
-//                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
-
-//                                new ResetArmForTransferCommand(intakeSubsystem)
-
-
-                ));
+//        operator.getGamepadButton(GamepadKeys.Button.A).whenPressed(
+//                new SequentialCommandGroup(
+//
+//
+////                        new WaitCommand(300),
+//                        new OpenGripplerCommand(transferSubsystem),
+//                        new TransferBackwardCommand(transferSubsystem),
+//                        new SlidesBackwardsTransferCommand(slidesSubsystem)
+////                        new WaitCommand(1000),
+////                        new InstantCommand(()->intakeSubsystem.fireOneShot())
+//
+//
+//
+//
+////                                new ClawLooseCommand(intakeSubsystem),
+//                        //add outtake pick
+////                        new IntakeClawOpenCommand(intakeSubsystem),
+////                        new TurretNormalResetCommand(intakeSubsystem),
+////                        new WaitCommand(500),
+////                        new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
+//
+////                                new ResetArmForTransferCommand(intakeSubsystem)
+//
+//
+//                ));
 
         operator.getGamepadButton(GamepadKeys.Button.Y).whenPressed(
                 new SequentialCommandGroup(
@@ -396,6 +417,17 @@ public class Intakecheckclaw extends CommandOpMode {
 
 
                 ));
+
+        driver.getGamepadButton(GamepadKeys.Button.Y).whenActive(
+                new SequentialCommandGroup(
+
+
+                        new InstantCommand(ascent::ptoBase),
+                        new InstantCommand(ascent::ptoMotorDown)
+                )
+        ).whenInactive(
+                ascent::ptoMotorStop
+        );
 
         driver.getGamepadButton(GamepadKeys.Button.X).whenPressed(
                 new IntakeClawYawSecondCommand(intakeSubsystem)
@@ -524,7 +556,7 @@ public class Intakecheckclaw extends CommandOpMode {
 //                                new WaitCommand(500),
 //                                new IntakePivotIntakePosCommand(intakeSubsystem, robotState)
                                   new InstantCommand(()->driveSpeed = 1.0),
-                                  new RetractCommandGroup(slidesSubsystem, transferSubsystem, robotState, intakeSubsystem)
+                                  new RetractCommandGroup(transferSubsystem, robotState, intakeSubsystem)
 //                        new InstantCommand(()->intakeSubsystem.intakeClawLoose())
 
 
@@ -559,13 +591,23 @@ public class Intakecheckclaw extends CommandOpMode {
 
                 )
         );
+        new Trigger(() -> driver.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.5)
+                .whileActiveContinuous(
+                        new SequentialCommandGroup(
+                                new InstantCommand(ascent::moveForward),
+                                new InstantCommand(transferSubsystem::backwardsTransfer),
+                                new SlidesSpecDrop(slidesSubsystem)
+//                                new InstantCommand(transferSubsystem::backwardsTransfer)
+//                                new TransferFlipCommand(transferSubsystem)
+                        )
 
-        driver.getGamepadButton(GamepadKeys.Button.RIGHT_STICK_BUTTON)
+                ).whenInactive(
+                        ascent::stop
+                );
+
+
+        driver.getGamepadButton(GamepadKeys.Button.X)
                 .whenPressed(    ascent::moveBackward)
-                .whenReleased(   ascent::stop);
-
-        driver.getGamepadButton(GamepadKeys.Button.LEFT_STICK_BUTTON)
-                .whenPressed(    ascent::moveForward)
                 .whenReleased(   ascent::stop);
 
         driver.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT).whenPressed(

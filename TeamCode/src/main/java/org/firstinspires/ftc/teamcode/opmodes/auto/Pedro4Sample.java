@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
@@ -32,8 +34,9 @@ import org.firstinspires.ftc.teamcode.subsystems.SlidesSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TransferSubsystem;
 
 @Autonomous
+
 public class Pedro4Sample extends CommandOpMode {
-    Follower f;
+//    Follower f;
     SlidesSubsystem slides;
     IntakeSubsystem intakeSubsystem;
     TransferSubsystem transferSubsystem;
@@ -47,11 +50,11 @@ public class Pedro4Sample extends CommandOpMode {
     public static PathChain line1 = builder
             .addPath(
                     new BezierLine(
-                            new Point(7.550, 112.450, Point.CARTESIAN),
-                            new Point(16.000, 128.000, Point.CARTESIAN)
+                            new Point(7.772, 95, Point.CARTESIAN),
+                            new Point(10, 87 , Point.CARTESIAN)
                     )
             )
-            .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-45))
+            .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
             .build();
 
     public static PathChain line2 = builder
@@ -116,14 +119,12 @@ public class Pedro4Sample extends CommandOpMode {
 
     @Override
     public void initialize() {
-        f = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        f.setStartingPose(new Pose(7.55, 112.450, 0));
 
         slides = new SlidesSubsystem(hardwareMap, telemetry);
         intakeSubsystem   = new IntakeSubsystem(hardwareMap, telemetry);
         transferSubsystem = new TransferSubsystem(hardwareMap);
         robotState = new RobotStateSubsystem();
-        followerSubsystem = new FollowerSubsystem(hardwareMap, FConstants.class, LConstants.class, new Pose(7.55, 112.450, 0));
+        followerSubsystem = new FollowerSubsystem(hardwareMap, FConstants.class, LConstants.class, new Pose(7.772, 95, 0));
 
 
         register(slides);
@@ -131,27 +132,55 @@ public class Pedro4Sample extends CommandOpMode {
         register(transferSubsystem);
         register(robotState);
         register(followerSubsystem);
+        transferSubsystem.stowTransfer();
         transferSubsystem.closeGrippler();
 
 
-        schedule(
-                new FollowPathCommand(f, line1, false)
-                        .alongWith(
-                                new SlidesHighBasketCommand(slides),
-                                new TransferFlipCommand(transferSubsystem),
+
+
+                schedule(
+                        new SequentialCommandGroup(
+                                // 1) drive the curve & at the same time prepare slides & transfer
+                                new FollowPathCommand(followerSubsystem.getFollower(), line1, true)
+                                        .alongWith(
+                                                new SlidesHighBasketCommand(slides),
+                                                new TransferFlipCommand(transferSubsystem)
+                                        ),
+
+                                // 2) when that path is done, open the grippler
+                                new OpenGripplerCommand(transferSubsystem),
+
+                                // 3) then stow the transfer & slides, etc.
                                 new ParallelCommandGroup(
-                                        new IntakeSlidesOutCommand(intakeSubsystem),
-                                        new IntakePivotMid(intakeSubsystem, robotState)
-                                )
-                        ),
-                new OpenGripplerCommand(transferSubsystem),
-                new ParallelCommandGroup(
-                        new TransferStowCommand(transferSubsystem),
-                        new WaitCommand(200),
-                        new SlidesStowCommand(slides)
-                ),
-                new ClawCloseCommand(intakeSubsystem),
-                new RetractCommandGroup(slides, transferSubsystem, robotState, intakeSubsystem)
+                                        new TransferStowCommand(transferSubsystem),
+                                        new WaitCommand(200),
+                                        new SlidesStowCommand(slides)
+                                ),
+
+                                // 4) finally, close the claw on the intake (for example)
+                                new ClawCloseCommand(intakeSubsystem),
+
+                                // 5) retract everything as one group, if you want
+                                new RetractCommandGroup(transferSubsystem, robotState, intakeSubsystem)
+
+//                new FollowPathCommand(followerSubsystem.getFollower(), line1, false)
+//                        .alongWith(
+//                                new SlidesHighBasketCommand(slides),
+//                                new TransferFlipCommand(transferSubsystem)
+////                                new ParallelCommandGroup(
+////                                        new IntakeSlidesOutCommand(intakeSubsystem),
+////                                        new IntakePivotMid(intakeSubsystem, robotState)
+////                                )
+//                        ),
+//                new OpenGripplerCommand(transferSubsystem)
+
+//                new ParallelCommandGroup(
+//                        new TransferStowCommand(transferSubsystem),
+//                        new WaitCommand(200),
+//                        new SlidesStowCommand(slides)
+//                ),
+//                new ClawCloseCommand(intakeSubsystem),
+//                new RetractCommandGroup(slides, transferSubsystem, robotState, intakeSubsystem)
 
 //                new FollowPathCommand(f, line2, false),
 //                new FollowPathCommand(f, line3, false),
@@ -159,7 +188,19 @@ public class Pedro4Sample extends CommandOpMode {
 //                new FollowPathCommand(f, line5, false),
 //                new FollowPathCommand(f, line6, false),
 //                new FollowPathCommand(f, line7, false)
-        );
+
+                        )
+                );
+
+//                telemetry.addData("path state", pathState);
+        telemetry.addData("x", followerSubsystem.getPose().getX());
+        telemetry.addData("y", followerSubsystem.getPose().getY());
+        telemetry.addData("heading", followerSubsystem.getPose().getHeading());
+        //        telemetry.addData("liftPosition", lifts.getCurrentPosition());
+        //        telemetry.addData("liftTarget", lifts.getCurrentTarget());
+        //        telemetry.addData("liftPower", lifts.rightLift.getPower());
+        telemetry.update();
+
 
 
     }
